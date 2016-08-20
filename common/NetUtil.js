@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 var common = require('./common.js');
 
 class NetUitl extends React.Component {
-    static postFrom( url, data, callback ) {
+    static postFrom( url, data, parse_json, callback ) {
         var fetchOptions = {
             method: 'POST',
             headers: {
@@ -14,14 +14,24 @@ class NetUitl extends React.Component {
         };
 
         fetch( url, fetchOptions )
-            .then( (response) => response.text() )
-            .then( (responseText) => {
-                //callback( responseText );
-                callback( JSON.parse( responseText ) );
+            .then( (response) => {
+                if( response.status != 200 ) {
+                    return common.request_error;
+                }
+
+                return response.text();
+            }).then( (responseText) => {
+                if( parse_json ) {
+                    callback( JSON.parse( responseText ) );
+                } else {
+                    callback( responseText );
+                }
+            }).catch(function(err){
+                alert(err);
             }).done();
     }
 
-    static postJson( url, data, callback ) {
+    static postJson( url, data, parse_json, callback ) {
         var fetchOptions = {
             method: 'POST',
             headers: {
@@ -33,14 +43,24 @@ class NetUitl extends React.Component {
 
         alert( '' + url );
         fetch( url, fetchOptions )
-            .then( (response) => response.text() )
-            .then( (responseText) => {
-                //alert( responseText );
-                callback( JSON.parse( responseText ) );
+            .then( (response) => {
+                if( response.status != 200 ) {
+                    return common.request_error;
+                }
+
+                return response.text();
+            }).then( (responseText) => {
+                if( parse_json ) {
+                    callback( JSON.parse( responseText ) );
+                } else {
+                    callback( responseText );
+                }
+            }).catch(function(err){
+                alert(err);
             }).done();
     }
 
-    static putJson( url, data, callback ) {
+    static putJson( url, data, parse_json, callback ) {
         var fetchOptions = {
             method: 'PUT',
             headers: {
@@ -58,19 +78,32 @@ class NetUitl extends React.Component {
 
                 return response.text();
             }).then( (responseText) => {
-                //alert( responseText );
-                callback( JSON.parse( responseText ) );
+                if( parse_json ) {
+                    callback( JSON.parse( responseText ) );
+                } else {
+                    callback( responseText );
+                }
             }).catch(function(err){
                 alert(err);
             }).done();
     }
 
-    static get( url, callback ) {
+    static get( url, parse_json, callback ) {
         fetch( url )
-            .then( (response) => response.text() )
-            .then( (responseText) => {
-                //callback( responseText );
-                callback( JSON.parse( responseText ) );
+            .then( (response) => {
+                if( response.status != 200 ) {
+                    return 'http code : ' + response.status + ', ' + common.request_error;
+                }
+
+                return response.text() 
+            }).then( (responseText) => {
+                if( parse_json ) {
+                    callback( JSON.parse( responseText ) );
+                } else {
+                    callback( responseText );
+                }
+            }).catch(function(err){
+                alert(err);
             }).done();
     }
 }

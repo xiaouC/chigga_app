@@ -12,9 +12,12 @@ String.format = function() {
     return str;
 }
 
+var cur_url_prefix = 'http://23.105.198.234';
+
 var common = {
-    login_url: 'http://23.105.198.234/api/account/sign-in',
-    register_url: 'http://23.105.198.234/api/users',
+    login_url:          cur_url_prefix + '/api/account/sign-in',
+    register_url:       cur_url_prefix + '/api/users',
+    get_contents_url:   cur_url_prefix + '/api/contents',
 
     request_error: '{"error":{"code":"HTTP_ERROR","message":"网络异常"}}',
 

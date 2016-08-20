@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 import {
     View,
-    TouchableHighlight,
+    TouchableOpacity,
     Text,
     TextInput,
     Image,
@@ -48,14 +48,14 @@ class SexView extends React.Component {
     render(){
         var sex_bg = this.state.selected ? sex_selected : sex_normal;
         return (
-                <TouchableHighlight onPress={this.onclick.bind(this)} >
+                <TouchableOpacity onPress={this.onclick.bind(this)} >
                     <View style={styles.sex_item} >
                         <Image style={styles.sex_image} source={this.props.sex_src} />
                         <Image style={styles.sex_text_bg} source={sex_bg} >
                             <Text style={styles.sex_text}>{this.props.text}</Text>
                         </Image>
                     </View>
-                </TouchableHighlight>
+                </TouchableOpacity>
             );
     }
 };
@@ -69,11 +69,11 @@ var PersonalInformationView = React.createClass({
                     <View style={styles.item_row} >
                         <View style={styles.item_row_line} backgroundColor='#FEC72E'/>
                         <Text style={styles.item_section_text}>头像</Text>
-                        <TouchableHighlight onPress={ () => {
+                        <TouchableOpacity onPress={ () => {
                             alert( 'settings click' );
                         }}>
                             <Image style={styles.item_head_icon} source={require('./images/Icon_upload.png')} />
-                        </TouchableHighlight>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.item_row} >
@@ -94,11 +94,11 @@ var PersonalInformationView = React.createClass({
                     <View style={{flex: 1}} />
 
                     <View style={styles.btn_config_view}>
-                        <TouchableHighlight onPress={ () => {
+                        <TouchableOpacity onPress={ () => {
                             user.update_user_info();
                         }} >
                             <Image style={styles.btn_confirm} source={require('./images/btn_confirm.png')} />
-                        </TouchableHighlight>
+                        </TouchableOpacity>
                     </View>
 
                 </View>

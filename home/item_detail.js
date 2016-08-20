@@ -5,7 +5,7 @@ import {
     View,
     WebView,
     ScrollView,
-    TouchableHighlight,
+    TouchableOpacity,
     Text,
     Image,
     StyleSheet
@@ -26,46 +26,108 @@ class ItemTagView extends React.Component {
         }
 };
 
+class ZanIconView extends React.Component {
+    render() {
+        return (
+                <TouchableOpacity onPress={ () => { alert('zan icon click'); } }>
+                    <Image style={styles.zan_icon_image} source={this.props.src}/>
+                </TouchableOpacity>
+               );
+        }
+};
+
 class HomeItemDetailView extends Component {
     render() {
         return (
                 <View style={{flex:1}}>
                     <common_views.BackTitleView text={'嘻哈圈'} navigator={this.props.navigator} />
 
-                    <ScrollView style={{height:100, backgroundColor: 'red'}}>
-                    <View style={styles.summary}>
-                        <View style={styles.user_info}>
-                            <Image style={styles.user_head_icon} source={require('./images/head.png')} />
-                            <Text style={styles.user_name}>DJ Jennies</Text>
-                            <View style={{flex:1}}/>
-                            <TouchableHighlight onPress={ () => {
-                            }}>
-                                <Image style={styles.user_attention} source={require('./images/attention_action_1.png')} />
-                            </TouchableHighlight>
+                    <ScrollView contentContainerStyle={{ flex:1, backgroundColor:'white'}}>
+                        <View style={styles.summary}>
+                            <View style={styles.user_info}>
+                                <Image style={styles.user_head_icon} source={require('./images/head.png')} />
+                                <Text style={styles.user_name}>DJ Jennies</Text>
+                                <View style={{flex:1}}/>
+                                <TouchableOpacity onPress={ () => {
+                                }}>
+                                    <Image style={styles.user_attention} source={require('./images/attention_action_1.png')} />
+                                </TouchableOpacity>
+                            </View>
+                            <Image style={styles.item_banner} source={require('./images/banner.png')} >
+                                <View style={styles.tag_row}>
+                                    <ItemTagView text={'#街头'}/>
+                                    <ItemTagView text={'#涂鸦'}/>
+                                    <ItemTagView text={'#SWAG'}/>
+                                </View>
+                                <View style={{flex:1}}/>
+                                <Text style={styles.item_title}>XXXXXX</Text>
+                                <View style={styles.read_publish}>
+                                    <View style={styles.read_count}>
+                                        <Image style={styles.read_icon} source={require('./images/read.png')}/>
+                                        <Text style={styles.read_count_text}>8642</Text>
+                                    </View>
+                                    <View style={styles.publish_time}>
+                                        <Image style={styles.publish_icon} source={require('./images/clock.png')}/>
+                                        <Text style={styles.publish_time_text}>两天前</Text>
+                                    </View>
+                                </View>
+                            </Image>
                         </View>
-                        <Image style={styles.item_banner} source={require('./images/banner.png')} >
-                            <View style={styles.tag_row}>
-                                <ItemTagView text={'#街头'}/>
-                                <ItemTagView text={'#涂鸦'}/>
-                                <ItemTagView text={'#SWAG'}/>
-                            </View>
-                            <View style={{flex:1}}/>
-                            <Text style={styles.item_title}>XXXXXX</Text>
-                            <View style={styles.read_publish}>
-                                <View style={styles.read_count}>
-                                    <Image style={styles.read_icon} source={require('./images/read.png')}/>
-                                    <Text style={styles.read_count_text}>8642</Text>
-                                </View>
-                                <View style={styles.publish_time}>
-                                    <Image style={styles.publish_icon} source={require('./images/clock.png')}/>
-                                    <Text style={styles.publish_time_text}>两天前</Text>
-                                </View>
-                            </View>
-                        </Image>
-                    </View>
 
-                    <WebView style={{marginTop: 0, backgroundColor: 'white'}} source={{uri: 'https://github.com/facebook/react-native'}} />
+                        <WebView style={{marginTop: 0, backgroundColor: 'white'}} source={{uri: 'https://github.com/facebook/react-native'}} />
+
+                        <View style={styles.zan_area}>
+                            <Image style={styles.zan_title} source={require('./images/line_zan.png')}>
+                                <Text style={styles.zan_title_text}>688个人觉得这很奇格</Text>
+                            </Image>
+                            <View style={styles.zan_row_area}>
+                                <ZanIconView src={require('./images/head_zan_1.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                            </View>
+                            <View style={styles.zan_row_area}>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/zan_head_6.png')}/>
+                                <ZanIconView src={require('./images/more_zan.png')}/>
+                            </View>
+                        </View>
+
+                        <View style={styles.comment_area}>
+                        </View>
                     </ScrollView>
+
+                    <View style={styles.btn_item}>
+                        <Image style={styles.zan_share_item} source={require('./images/tab_bottom_bg.png')}>
+                            <TouchableOpacity onPress={ () => { user.dian_zan( category_id ) }} >
+                                <View style={styles.zan_item}>
+                                    <Image style={styles.zan_icon} source={require('./images/dian_zan_1.png')}/>
+                                    <Text style={styles.zan_text}>点赞</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <Image style={styles.dividing_line} source={require('./images/dividing_line.png')}/>
+                            <TouchableOpacity onPress={ () => { user.share( category_id ) }} >
+                                <View style={styles.share_item}>
+                                    <Image style={styles.share_icon} source={require('./images/share.png')}/>
+                                    <Text style={styles.share_text}>分享</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </Image>
+                        <View style={styles.write_comment_item}>
+                            <TouchableOpacity onPress={ () => { user.write_comment( category_id ) }} >
+                                <Image style={styles.write_comment_icon} source={require('./images/write_comment.png')} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 </View>
             );
     };
@@ -208,6 +270,115 @@ var styles = StyleSheet.create({
 
     webview_style: {
        height: 300,
+    },
+
+    zan_area: {
+        width: 360,
+        height: 120,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    zan_title: {
+        width: 360,
+        height: 30,
+        alignItems: 'center',
+    },
+
+    zan_title_text: {
+        width: 200,
+        height: 30,
+        fontSize: 14,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        color: '#767676',
+    },
+
+    zan_row_area: {
+        width: 360,
+        height: 42,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    zan_icon_image: {
+        width: 40,
+        height: 40,
+        resizeMode: 'contain',
+    },
+
+    btn_item: {
+        width: 360,
+        height: 45,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+    },
+
+    zan_share_item: {
+        width: 240,
+        height: 45,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+    },
+
+    zan_item: {
+        width: 120,
+        height: 45,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    zan_icon: {
+        width: 20,
+        height: 20,
+        alignSelf: 'center',
+        resizeMode: 'contain',
+    },
+
+    zan_text: {
+        fontSize: 10,
+        textAlign: 'center',
+        color: 'white',
+    },
+
+    dividing_line: {
+        flex: 1,
+        width: 1,
+        alignSelf: 'center',
+    },
+
+    share_item: {
+        width: 120,
+        height: 45,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    share_icon: {
+        width: 20,
+        height: 20,
+        alignSelf: 'center',
+        resizeMode: 'contain',
+    },
+
+    share_text: {
+        fontSize: 10,
+        textAlign: 'center',
+        color: 'white',
+    },
+    write_comment_item: {
+        width: 120,
+        height: 45,
+    },
+
+    write_comment_icon: {
+        width: 120,
+        height: 45,
+        resizeMode: 'contain',
     },
 
 });

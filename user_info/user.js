@@ -52,7 +52,7 @@ var user = {
         };
 
         var _this_self = this;
-        net_util.postJson( common.register_url + "?mode=usual", data, function(rsp_json_data) {
+        net_util.postJson( common.register_url + "?mode=usual", data, true, function(rsp_json_data) {
             if( rsp_json_data['error'] != 0 ) {
                 common.error_report( rsp_json_data['error'], rsp_json_data['message'] );
             } else {
@@ -80,7 +80,7 @@ var user = {
         };
 
         var _this_self = this;
-        net_util.putJson( common.login_url, data, function(rsp_json_data) {
+        net_util.putJson( common.login_url, data, true, function(rsp_json_data) {
             if( rsp_json_data['error'] != 0 ) {
                 common.error_report( rsp_json_data['error'], rsp_json_data['message'] );
             } else {

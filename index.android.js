@@ -52,7 +52,7 @@ navigator_views.set('Default', DefaultView);
 var Chigga = React.createClass({
 
     configureScene(route){
-      return Navigator.SceneConfigs.FadeAndroid;
+      return Navigator.SceneConfigs.FloatFromRight;
     },
 
     renderScene(router, navigator){

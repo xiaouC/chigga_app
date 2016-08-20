@@ -4,12 +4,11 @@ import React, { Component } from 'react';
 import {
     View,
     ListView,
-    TouchableHighlight,
+    TouchableOpacity,
     Text,
     Image,
     StyleSheet
 } from 'react-native';
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // bottom tab 
@@ -27,28 +26,28 @@ var tab_struct = function( src, text, onclick )   {
 
 var home_view = null;
 var tab_config = new Array(
-        new tab_struct( require( './images/tab_1.png' ), '嘻哈圈', function() {
-            tab_config[0].obj.setState( { selected: true } );
-            tab_config[1].obj.setState( { selected: false } );
-            tab_config[2].obj.setState( { selected: false } );
+    new tab_struct( require( './images/tab_1.png' ), '嘻哈圈', function() {
+        tab_config[0].obj.setState( { selected: true } );
+        tab_config[1].obj.setState( { selected: false } );
+        tab_config[2].obj.setState( { selected: false } );
 
-            home_view.setState( { cur_sel: 0 } );
-        }),
-        new tab_struct( require( './images/tab_2.png' ), '奇格镇', function() {
-            tab_config[0].obj.setState( { selected: false } );
-            tab_config[1].obj.setState( { selected: true } );
-            tab_config[2].obj.setState( { selected: false } );
+        home_view.setState( { cur_sel: 0 } );
+    }),
+    new tab_struct( require( './images/tab_2.png' ), '奇格镇', function() {
+        tab_config[0].obj.setState( { selected: false } );
+        tab_config[1].obj.setState( { selected: true } );
+        tab_config[2].obj.setState( { selected: false } );
 
-            home_view.setState( { cur_sel: 1 } );
-        }),
-        new tab_struct( require( './images/tab_3.png' ), '黄  鬼', function() {
-            tab_config[0].obj.setState( { selected: false } );
-            tab_config[1].obj.setState( { selected: false } );
-            tab_config[2].obj.setState( { selected: true } );
+        home_view.setState( { cur_sel: 1 } );
+    }),
+    new tab_struct( require( './images/tab_3.png' ), '黄  鬼', function() {
+        tab_config[0].obj.setState( { selected: false } );
+        tab_config[1].obj.setState( { selected: false } );
+        tab_config[2].obj.setState( { selected: true } );
 
-            home_view.setState( { cur_sel: 2 } );
-        })
-        );
+        home_view.setState( { cur_sel: 2 } );
+    })
+);
 
 // 
 class NavigationButton extends React.Component {
@@ -76,14 +75,14 @@ class NavigationButton extends React.Component {
         var tc = tab_config[this.props.tab_index];
         var state = this.state.selected ? tab_selected : tab_normal;
         return (
-                <TouchableHighlight onPress={this.onclick.bind(this)} >
+                <TouchableOpacity onPress={this.onclick.bind(this)} >
                     <View style={{width:120,height:60}} >
                         <Image style={styles.bottom_tab} source={state} >
                             <Image style={styles.bottom_tab_image} source={tc.src} />
                             <Text style={styles.bottom_tab_text}>{tc.text}</Text>
                         </Image>
                     </View>
-                </TouchableHighlight>
+                </TouchableOpacity>
                );
         }
 };
@@ -106,23 +105,36 @@ class HomeView extends Component {
         this.state = { cur_sel: props.index, };
 
         home_view = this;
+
+        this.content_offset_y = 0;
+        this.content_items = [];
+        for( var i=0; i < 5; ++i ) {
+            this.content_items.push( {
+                item_id: 'item_id_' + i,
+                title: 'title_' + i,
+                tags: ['tag1', 'tag2', 'tag3'],
+                read_count: 1234,
+                comment_count: 234,
+                zan_count: 350,
+                uri: "",
+            });
+        }
+
+
+        this.content_view_list = [];
+        this.content_view_list.push( <HomeListView style={styles.hp_content} navigator={this.props.navigator} home_obj={this} ref={(ref)=>{if(ref)ref.load();}} /> );
+        this.content_view_list.push( <HomeListView style={styles.hp_content} navigator={this.props.navigator} home_obj={this} ref={(ref)=>{if(ref)ref.load();}} /> );
+        this.content_view_list.push( <PersonalView style={styles.hp_content} navigator={this.props.navigator} home_obj={this} ref={(ref)=>{if(ref)ref.load();}} /> );
     };
 
     render() {
-        var content_view = <HomeListView style={styles.hp_content} navigator={this.props.navigator} />;
-        switch(this.state.cur_sel) {
-            case 0: content_view = <HomeListView style={styles.hp_content} navigator={this.props.navigator} />; break;
-            case 1: content_view = <HomeListView style={styles.hp_content} navigator={this.props.navigator} />; break;
-            case 2: content_view = <PersonalView style={styles.hp_content} navigator={this.props.navigator} />; break;
-        }
-
         return (
                 <View style = { styles.hp_container } >
                     <Image style = { styles.hp_top } source = { require('./images/title.png') } >
                         <Image style = { { width:84, height:25 } } source = { require('./images/chigga.png') } />
                     </Image>
 
-                    {content_view}
+                    {this.content_view_list[this.state.cur_sel]}
 
                     <View style={ styles.hp_bottom } >
                         <NavigationButton tab_index={0} cur_sel={this.state.cur_sel} />

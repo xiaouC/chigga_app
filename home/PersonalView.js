@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import {
     View,
         ListView,
-        TouchableHighlight,
+        TouchableOpacity,
         Text,
         Image,
         StyleSheet
@@ -12,6 +12,9 @@ import {
 
 
 var PersonalView = React.createClass({
+    load() {
+    },
+
     render(){
         return (
                 <View style={styles.container} >
@@ -38,13 +41,13 @@ var PersonalView = React.createClass({
                         </View>
                     </Image>
                     <View style={styles.separator} backgroundColor='#CCCCCC'/>
-                    <TouchableHighlight onPress={ () => {
+                    <TouchableOpacity onPress={ () => {
                         this.props.navigator.push({name: 'PersonalInformation'});
                     }}>
                         <View style={styles.settings}>
                             <Text style={styles.settings_text}>设置</Text>
                         </View>
-                    </TouchableHighlight>
+                    </TouchableOpacity>
                     <View style={styles.separator} backgroundColor='#CCCCCC'/>
                 </View>
             );

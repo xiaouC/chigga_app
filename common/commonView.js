@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 import {
     View,
-    TouchableHighlight,
+    TouchableOpacity,
     Text,
     Image,
     StyleSheet
@@ -14,7 +14,7 @@ var BackTitleView = React.createClass({
         var back_text = this.props.popToTop ? "跳过" : "返回";
         return (
                 <Image style={styles.title_background} source={require('./images/title.png')} >
-                    <TouchableHighlight onPress={ () => {
+                    <TouchableOpacity onPress={ () => {
                         if( this.props.popToTop ) {
                             this.props.navigator.popToTop();
                         } else {
@@ -25,7 +25,7 @@ var BackTitleView = React.createClass({
                             <Image style={styles.back_arrow} source={require('./images/back_arrow.png')} />
                             <Text style={styles.title_back_text}>{back_text}</Text>
                         </View>
-                    </TouchableHighlight>
+                    </TouchableOpacity>
                     <Text style={styles.title_text}>{this.props.text}</Text>
                     <View style={styles.back_item} />
                 </Image>

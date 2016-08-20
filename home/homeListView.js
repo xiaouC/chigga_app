@@ -3,11 +3,12 @@ import React, { Component } from 'react';
 
 import {
     View,
-        ListView,
-        TouchableHighlight,
-        Text,
-        Image,
-        StyleSheet
+    ListView,
+    TouchableOpacity,
+    Text,
+    Image,
+    StyleSheet,
+    InteractionManager,
 } from 'react-native';
 
 var user = require('../user_info/user.js');
@@ -47,20 +48,113 @@ class ZanView extends React.Component {
     render() {
         var zan_src = user.is_zan( 'id_1' ) ? zan_src_2 : zan_src_1;
         return (
-                <TouchableHighlight onPress={ () => { user.dian_zan( 'id_1' ); } } >
+                <TouchableOpacity onPress={ () => { user.dian_zan( 'id_1' ); } } >
                     <View style={styles.count_item}>
                         <Image style={styles.count_image} source={zan_src} />
                         <Text style={styles.count_text}>{this.props.count}</Text>
                     </View>
-                </TouchableHighlight>
+                </TouchableOpacity>
                );
         }
 };
 
-var HomeListView = React.createClass({
+var net_util = require('../common/NetUtil.js');
+var common = require('../common/common.js');
+class HomeListView extends React.Component {
+
+    constructor( props ) {
+        super( props );
+
+        var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
+        this.state = {
+            category_id: '',
+            is_delete: false,
+            page_size: 10,
+            cur_page: 1,
+
+            dataSource: ds.cloneWithRows( this.genRows() ),
+        };
+
+        this.need_refresh = true;
+    }
+
+    genRows() {
+        //for( var i=0; i < 5; ++i ) {
+        //    this.ds.push( {
+        //        item_id: 'item_id_' + i,
+        //        title: 'title_' + i,
+        //        tags: ['tag1', 'tag2', 'tag3'],
+        //        read_count: 1234,
+        //        comment_count: 234,
+        //        zan_count: 350,
+        //        uri: "",
+        //    });
+        //}
+
+        return this.props.home_obj.content_items;
+    }
+
+    load() {
+        this.yy_list_item_obj.setState( { dataSource: this.state.dataSource.cloneWithRows(this.props.home_obj.content_items) } );
+    }
+
+    _refresh() {
+        var _this_self = this;
+
+        var url = common.get_contents_url + "?_id=" + this.state.id + "&deleted=" + (this.state.is_delete ? "true" : "false") + "&pageSize=" + this.state.page_size + "&currentPage=" + this.state.cur_page;
+        net_util.get( url, false, function(rsp_json_data) {
+            alert( rsp_json_data );
+
+            //var contents = eval( rsp_json_data.contents );
+            //for( var i=0; i < contents.length; ++i ) {
+            //        _this_self.props.home_obj.content_items.push( {
+            //        item_id: contents[i]._id,
+            //        title: contents[i].title,
+            //        tags: contents[i].tags,
+            //        read_count: contents[i].reading.total,
+            //        comment_count: contents[i].comments,
+            //        zan_count: contents[i].likes,
+            //        uri: contents[i].thumbnail.src,
+            //    });
+            //}
+
+            for( var i=0; i < 5; ++i ) {
+                for( var i=0; i < 5; ++i ) {
+                    _this_self.props.home_obj.content_items.push( {
+                        item_id: 'item_id_new_' + i,
+                        title: 'title_new_' + i,
+                        tags: ['tagN1', 'tagN2', 'tagN3'],
+                        read_count: 1234,
+                        comment_count: 234,
+                        zan_count: 350,
+                        uri: "",
+                    });
+                }
+            }
+
+            _this_self.yy_list_item_obj.setState( { dataSource: _this_self.state.dataSource.cloneWithRows(_this_self.props.home_obj.content_items) } );
+        });
+    }
+
+    componentDidMount() {
+        var _this_self = this;
+
+        InteractionManager.runAfterInteractions(() => {
+            setTimeout( function() {
+                _this_self.yy_list_item_obj.scrollTo({x: 0, y: _this_self.props.home_obj.content_offset_y, animated: false});
+            }, 10);
+        });
+    }
+
+    yy_list_item_obj = null;
+
     render(){
         return (
-                <YYListView style={{flex:1}}
+                <ListView style={{flex:1}} ref={(ref)=>{this.yy_list_item_obj=ref;}}
+                    dataSource = { this.state.dataSource }
+                    onScroll={(e)=>{ this.props.home_obj.content_offset_y = e.nativeEvent.contentOffset.y; }}
+                    genRows={this.genRows.bind(this)}
                     renderSeparator={ (sectionID: number, rowID: number, adjacentRowHighlighted: bool) => {
                         return (
                             <View
@@ -69,31 +163,31 @@ var HomeListView = React.createClass({
                             />
                         );
                     } }
-                    renderRow={ (rowData: string, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) => {
+                    renderRow={ (rowData, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) => {
                         return (
-                            <TouchableHighlight onPress={ () => { this.props.navigator.push({name: 'HomeItemDetailView'}); } } >
+                            <TouchableOpacity onPress={ () => { this.props.navigator.push({name: 'HomeItemDetailView'}); } } >
                                 <View style={styles.list_item_row}>
                                     <Image style={styles.list_item_image} source={require('./images/hp_banner.png')} />
                                     <View style={{flex:1}} >
-                                        <Text style={styles.list_item_title_text}> {rowData} </Text>
+                                        <Text style={styles.list_item_title_text}> {rowData.title} </Text>
                                     </View>
                                     <View style={styles.list_item_summary}>
-                                        <TagView text='#街头' />
-                                        <TagView text='#涂鸦' />
-                                        <TagView text='#SWAG' />
+                                        <TagView text={rowData.tags[0]} />
+                                        <TagView text={rowData.tags[1]} />
+                                        <TagView text={rowData.tags[2]} />
                                         <View style={{width:30}} />
-                                        <CountView index={0} count={8642} />
-                                        <CountView index={1} count={36} />
-                                        <ZanView count={698} />
+                                        <CountView index={0} count={rowData.read_count} />
+                                        <CountView index={1} count={rowData.comment_count} />
+                                        <ZanView count={rowData.zan_count} />
                                     </View>
                                 </View>
-                            </TouchableHighlight>
+                            </TouchableOpacity>
                         );
                     }}
                 />
         )
-    },
-});
+    }
+};
 
 var styles = StyleSheet.create({
 

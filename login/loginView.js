@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import {
     View,
-    TouchableHighlight,
+    TouchableOpacity,
     Text,
     TextInput,
     Image,
@@ -11,7 +11,6 @@ import {
 
 var user = require('../user_info/user.js');
 var common = require('../common/common.js');
-var net_util = require('../common/NetUtil.js');
 
 var common_views = require('../common/commonView.js');
 
@@ -41,21 +40,22 @@ var LoginView = React.createClass({
                     <View style={styles.forgot_password_view}>
                         <Text style={styles.forgot_password_text_1}>忘记密码？点此</Text>
                         <Text style={styles.forgot_password_text_2} onPress={ () => {
-                            this.props.navigator.push({name: 'Register'});
+                            alert('找回密码');
+                            //this.props.navigator.push({name: 'Register'});
                         }}>找回密码</Text>
                         <Text style={styles.forgot_password_text_3}>吧...</Text>
                     </View>
 
                     <View style={styles.btn_item}>
                         <View style={styles.button_touchable_view}>
-                            <TouchableHighlight onPress={()=>{this.props.navigator.push({name: 'Register'});}}>
+                            <TouchableOpacity onPress={()=>{this.props.navigator.push({name: 'Register'});}}>
                                 <Image style={styles.button} source={require('./images/btn_zhuce.png')} />
-                            </TouchableHighlight>
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.button_touchable_view}>
-                            <TouchableHighlight onPress={()=>{user.login(user_account, user_password);}}>
+                            <TouchableOpacity onPress={()=>{user.login(user_account, user_password);}}>
                                 <Image style={styles.button} source={require('./images/btn_denglu.png')} />
-                            </TouchableHighlight>
+                            </TouchableOpacity>
                         </View>
                     </View>
 

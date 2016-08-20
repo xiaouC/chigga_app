@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import {
     View,
-    TouchableHighlight,
+    TouchableOpacity,
     Text,
     TextInput,
     Image,
@@ -53,9 +53,9 @@ var RegisterView = React.createClass({
 
                     <View style={styles.btn_item}>
                         <View style={styles.button_touchable_view}>
-                            <TouchableHighlight onPress={ () => { user.register( user_account, user_email, user_password_1, user_password_2 ) }} >
+                            <TouchableOpacity onPress={ () => { user.register( user_account, user_email, user_password_1, user_password_2 ) }} >
                                 <Image style={styles.btn_register} source={require('./images/btn_register.png')} />
-                            </TouchableHighlight>
+                            </TouchableOpacity>
                         </View>
                     </View>
 
