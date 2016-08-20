@@ -107,19 +107,8 @@ class HomeView extends Component {
         home_view = this;
 
         this.content_offset_y = 0;
+        this.need_refresh = true;
         this.content_items = [];
-        for( var i=0; i < 5; ++i ) {
-            this.content_items.push( {
-                item_id: 'item_id_' + i,
-                title: 'title_' + i,
-                tags: ['tag1', 'tag2', 'tag3'],
-                read_count: 1234,
-                comment_count: 234,
-                zan_count: 350,
-                uri: "",
-            });
-        }
-
 
         this.content_view_list = [];
         this.content_view_list.push( <HomeListView style={styles.hp_content} navigator={this.props.navigator} home_obj={this} ref={(ref)=>{if(ref)ref.load();}} /> );
