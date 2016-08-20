@@ -13,7 +13,7 @@ import {
 
 var common_views = require('../common/commonView.js');
 
-// tag 
+// tag
 class ItemTagView extends React.Component {
     render() {
         return (
@@ -37,12 +37,30 @@ class ZanIconView extends React.Component {
 };
 
 class HomeItemDetailView extends Component {
+    state = {WebViewHeight: 0}
     render() {
+        var injectedJavaScript = `
+          (function loop(){
+            if (document.readyState === 'complete') {
+              var height = document.height;
+              window.location.hash = '#' + height;
+            }
+            setTimeout(function() {
+              if (document.readyState === 'complete') {
+                var height = document.height;
+                window.location.hash = '#' + height;
+              } else {
+                loop();
+              }
+            }, 1);
+          })();
+        `;
+        var testHTML = '<h1 id=\"-\">获取手机验证码</h1>\n<pre><code>POST /api/sms\n</code></pre><p>返回实例</p>\n<pre><code>测试情况下返回：\n{\n    captcha: &#39;123456&#39;\n}\n\n* 正式情况下验证码由手机短信的形式返回\n</code></pre><h1 id=\"-\">注册用户</h1>\n<pre><code>POST /api/users[?mode=email|phone]\n</code></pre><h5 id=\"-\">参数说明</h5>\n<pre><code>username:必须，当mode为email时，username需为email格式，为phone时，需为手机号码格式\npassword:必须，密码\nnickname:必须，昵称\ncaptcha:手机验证码，mode为phone才需要\n</code></pre><h1 id=\"-\">登录</h1>\n<pre><code>PUT /api/account/sign-in\n</code></pre><h5 id=\"-\">参数说明</h5>\n<pre><code>格式为JSON\nusername:用户名\npassword:密码\n</code></pre><h1 id=\"-\">注销</h1>\n<pre><code>PUT /api/account/sign-out\n</code></pre>';
         return (
                 <View style={{flex:1}}>
                     <common_views.BackTitleView text={'嘻哈圈'} navigator={this.props.navigator} />
 
-                    <ScrollView contentContainerStyle={{ flex:1, backgroundColor:'white'}}>
+                    <ScrollView contentContainerStyle={{backgroundColor:'white'}}>
                         <View style={styles.summary}>
                             <View style={styles.user_info}>
                                 <Image style={styles.user_head_icon} source={require('./images/head.png')} />
@@ -74,8 +92,26 @@ class HomeItemDetailView extends Component {
                             </Image>
                         </View>
 
-                        <WebView style={{marginTop: 0, backgroundColor: 'white'}} source={{uri: 'https://github.com/facebook/react-native'}} />
-
+                        <WebView style={{marginTop: 0, backgroundColor: 'white', height: this.state.WebViewHeight}}
+                          injectedJavaScript={injectedJavaScript}
+                          javaScriptEnabled={true}
+                          scrollEnabled={false}
+                          automaticallyAdjustContentInsets={false}
+                          onNavigationStateChange={(info, e)=>{
+                            var height = 0;
+                            if (info.url.indexOf("#") > 0) {
+                              var height = info.url.split("#").pop() / 1;
+                            } else {
+                              var height = info.url.replace('about:blank%23','') / 1;
+                            }
+                            if (!isNaN(height)) {
+                              this.setState({
+                                WebViewHeight:height
+                              });
+                            }
+                          }}
+                          source={{html: testHTML}}
+                        />
                         <View style={styles.zan_area}>
                             <Image style={styles.zan_title} source={require('./images/line_zan.png')}>
                                 <Text style={styles.zan_title_text}>688个人觉得这很奇格</Text>
