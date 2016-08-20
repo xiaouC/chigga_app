@@ -17,13 +17,19 @@ var YYListView = require('../common/YYListView.js');
 // tag 
 class TagView extends React.Component {
     render() {
-        return (
-                <View style={styles.tag_item}>
-                    <Image style={styles.tag_image} source={require('./images/tag.png')}>
-                        <Text style={styles.tag_text}>{this.props.text}</Text>
-                    </Image>
-                </View>
-               );
+        if( this.props.text == null || this.props.text =='' ) {
+            return (
+                    <View style={styles.tag_item}/>
+                   );
+        } else {
+            return (
+                    <View style={styles.tag_item}>
+                        <Image style={styles.tag_image} source={require('./images/tag.png')}>
+                            <Text style={styles.tag_text}>{this.props.text}</Text>
+                        </Image>
+                    </View>
+                   );
+            }
         }
 };
 
@@ -68,73 +74,50 @@ class HomeListView extends React.Component {
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
         this.state = {
-            category_id: '',
-            is_delete: false,
             page_size: 10,
             cur_page: 1,
 
             dataSource: ds.cloneWithRows( this.genRows() ),
         };
 
-        this.need_refresh = true;
+        this.ds = ds;
     }
 
     genRows() {
-        //for( var i=0; i < 5; ++i ) {
-        //    this.ds.push( {
-        //        item_id: 'item_id_' + i,
-        //        title: 'title_' + i,
-        //        tags: ['tag1', 'tag2', 'tag3'],
-        //        read_count: 1234,
-        //        comment_count: 234,
-        //        zan_count: 350,
-        //        uri: "",
-        //    });
-        //}
-
         return this.props.home_obj.content_items;
     }
 
     load() {
-        this.yy_list_item_obj.setState( { dataSource: this.state.dataSource.cloneWithRows(this.props.home_obj.content_items) } );
+        if( this.props.home_obj.need_refresh ) {
+            this._refresh();
+        }
     }
 
     _refresh() {
         var _this_self = this;
 
-        var url = common.get_contents_url + "?_id=" + this.state.id + "&deleted=" + (this.state.is_delete ? "true" : "false") + "&pageSize=" + this.state.page_size + "&currentPage=" + this.state.cur_page;
-        net_util.get( url, false, function(rsp_json_data) {
-            alert( rsp_json_data );
-
-            //var contents = eval( rsp_json_data.contents );
-            //for( var i=0; i < contents.length; ++i ) {
-            //        _this_self.props.home_obj.content_items.push( {
-            //        item_id: contents[i]._id,
-            //        title: contents[i].title,
-            //        tags: contents[i].tags,
-            //        read_count: contents[i].reading.total,
-            //        comment_count: contents[i].comments,
-            //        zan_count: contents[i].likes,
-            //        uri: contents[i].thumbnail.src,
-            //    });
-            //}
-
-            for( var i=0; i < 5; ++i ) {
-                for( var i=0; i < 5; ++i ) {
-                    _this_self.props.home_obj.content_items.push( {
-                        item_id: 'item_id_new_' + i,
-                        title: 'title_new_' + i,
-                        tags: ['tagN1', 'tagN2', 'tagN3'],
-                        read_count: 1234,
-                        comment_count: 234,
-                        zan_count: 350,
-                        uri: "",
-                    });
-                }
+        //var url = common.get_contents_url + "?_id=" + this.state.category_id + "&deleted=" + (this.state.is_delete ? "true" : "false") + "&pageSize=" + this.state.page_size + "&currentPage=" + this.state.cur_page;
+        var url = common.get_contents_url;
+        net_util.get( url, true, function(rsp_json_data) {
+            var contents = eval( rsp_json_data.data.contents );
+            for( var i=0; i < contents.length; ++i ) {
+                _this_self.props.home_obj.content_items.push( {
+                    item_id: contents[i]._id,
+                    title: contents[i].title,
+                    tags: contents[i].tags,
+                    read_count: contents[i].reading.total,
+                    comment_count: contents[i].comments,
+                    zan_count: contents[i].likes,
+                    uri: contents[i].thumbnail.src,
+                });
             }
 
-            _this_self.yy_list_item_obj.setState( { dataSource: _this_self.state.dataSource.cloneWithRows(_this_self.props.home_obj.content_items) } );
+            _this_self.props.home_obj.need_refresh = false;
+            _this_self.setState( { dataSource: _this_self.ds.cloneWithRows(_this_self.props.home_obj.content_items) } );
         });
+    }
+
+    _loadMore() {
     }
 
     componentDidMount() {
@@ -151,7 +134,7 @@ class HomeListView extends React.Component {
 
     render(){
         return (
-                <ListView style={{flex:1}} ref={(ref)=>{this.yy_list_item_obj=ref;}}
+                <ListView style={{flex:1}} ref={(ref)=>{this.yy_list_item_obj=ref;}} enableEmptySections={true}
                     dataSource = { this.state.dataSource }
                     onScroll={(e)=>{ this.props.home_obj.content_offset_y = e.nativeEvent.contentOffset.y; }}
                     genRows={this.genRows.bind(this)}
@@ -164,21 +147,25 @@ class HomeListView extends React.Component {
                         );
                     } }
                     renderRow={ (rowData, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) => {
+                        var src = { uri: common.url_prefix + rowData.uri }
                         return (
                             <TouchableOpacity onPress={ () => { this.props.navigator.push({name: 'HomeItemDetailView'}); } } >
                                 <View style={styles.list_item_row}>
-                                    <Image style={styles.list_item_image} source={require('./images/hp_banner.png')} />
+                                    <Image style={styles.list_item_image} source={src} />
                                     <View style={{flex:1}} >
                                         <Text style={styles.list_item_title_text}> {rowData.title} </Text>
                                     </View>
                                     <View style={styles.list_item_summary}>
-                                        <TagView text={rowData.tags[0]} />
-                                        <TagView text={rowData.tags[1]} />
-                                        <TagView text={rowData.tags[2]} />
-                                        <View style={{width:30}} />
-                                        <CountView index={0} count={rowData.read_count} />
-                                        <CountView index={1} count={rowData.comment_count} />
-                                        <ZanView count={rowData.zan_count} />
+                                        <View style={styles.tags_item}>
+                                            <TagView text={rowData.tags[0]} />
+                                            <TagView text={rowData.tags[1]} />
+                                            <TagView text={rowData.tags[2]} />
+                                        </View>
+                                        <View style={styles.read_comment_zan_item}>
+                                            <CountView index={0} count={rowData.read_count} />
+                                            <CountView index={1} count={rowData.comment_count} />
+                                            <ZanView count={rowData.zan_count} />
+                                        </View>
                                     </View>
                                 </View>
                             </TouchableOpacity>
@@ -253,7 +240,7 @@ var styles = StyleSheet.create({
         flex: 1,
         width: 340,
         textAlign: 'left',
-        fontSize: 30,
+        fontSize: 28,
     },
 
     list_item_summary: {
@@ -266,6 +253,23 @@ var styles = StyleSheet.create({
         alignItems: 'center',
     },
 
+    tags_item: {
+        width: 150,
+        height: 40,
+        justifyContent: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 10,
+    },
+
+    read_comment_zan_item: {
+        width: 150,
+        height: 40,
+        justifyContent: 'space-around',
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 10,
+    },
 });
 
 module.exports = HomeListView;

@@ -15,6 +15,7 @@ String.format = function() {
 var cur_url_prefix = 'http://23.105.198.234';
 
 var common = {
+    url_prefix:         cur_url_prefix,
     login_url:          cur_url_prefix + '/api/account/sign-in',
     register_url:       cur_url_prefix + '/api/users',
     get_contents_url:   cur_url_prefix + '/api/contents',
