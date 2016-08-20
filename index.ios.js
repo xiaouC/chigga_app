@@ -1,53 +1,61 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
 
 import React, { Component } from 'react';
 import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View
+    AppRegistry,
+    View,
+    Navigator,
+    Text,
+    StyleSheet
 } from 'react-native';
 
-class Chigga extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-      </View>
-    );
-  }
-}
+var user = require('./user_info/user.js');
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+// navigator view list
+var navigator_views = new Map();
+navigator_views.set('Home', require('./home/home.js'));
+navigator_views.set('Login', require('./login/loginView.js'));
+navigator_views.set('Register', require('./login/registerView.js'));
+navigator_views.set('PersonalInformation', require('./login/personalInformationView.js'));
+navigator_views.set('HomeItemDetailView', require('./home/item_detail.js'));
+
+var Chigga = React.createClass({
+
+    configureScene(route){
+        return Navigator.SceneConfigs.FloatFromRight;
+    },
+
+    renderScene(router, navigator){
+        var Component = router.component;
+        this._navigator = navigator;
+
+        Component = navigator_views.get(router.name);
+
+        return <Component navigator={navigator} {...router.passProps} />
+    },
+
+    render() {
+        return (
+            <Navigator ref={ (ref) => { user.navigator = ref } }
+                initialRoute={{name: 'Home', passProps: {index: 0}}}
+                configureScene={this.configureScene}
+                renderScene={this.renderScene} />
+        );
+    }
+
 });
+
+
+
+var styles = StyleSheet.create({
+
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5FCFF',
+    },
+
+});
+
 
 AppRegistry.registerComponent('Chigga', () => Chigga);
