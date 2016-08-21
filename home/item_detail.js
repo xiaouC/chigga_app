@@ -18,24 +18,76 @@ var net_util = require('../common/NetUtil.js');
 // tag
 class ItemTagView extends React.Component {
     render() {
-        return (
-                <View style={styles.tag_item}>
-                    <Image style={styles.tag_image} source={require('./images/tag_bg.png')}>
-                        <Text style={styles.tag_text}>{this.props.text}</Text>
-                    </Image>
-                </View>
-               );
+        if( this.props.text == null || this.props.text == '' ) {
+            return null;
+        } else {
+            return (
+                    <View style={styles.tag_item}>
+                        <Image style={styles.tag_image} source={require('./images/tag_bg.png')}>
+                            <Text style={styles.tag_text}>{this.props.text}</Text>
+                        </Image>
+                    </View>
+                   );
+            }
         }
 };
 
 class ZanIconView extends React.Component {
     render() {
-        return (
-                <TouchableOpacity onPress={ () => { alert('zan icon click'); } }>
-                    <Image style={styles.zan_icon_image} source={this.props.src}/>
-                </TouchableOpacity>
-               );
+        if( this.props.src.user_id != null && this.props.src.user_id != '' ) {
+            return (
+                    <TouchableOpacity onPress={ () => { alert('zan icon click'); } }>
+                        <Image style={styles.zan_icon_image} source={this.props.src.icon_src}/>
+                    </TouchableOpacity>
+                   );
+        } else {
+            return null;
         }
+    }
+};
+
+class ZanAreaView extends React.Component {
+    render() {
+        if( this.props.zan_count > 7 ) {
+            return (
+                    <View>
+                        <View style={styles.zan_row_area}>
+                            <ZanIconView src={this.props.zan_info.self_zan}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[0]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[1]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[2]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[3]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[4]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[5]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[6]}/>
+                        </View>
+                        <View style={styles.zan_row_area}>
+                            <ZanIconView src={this.props.zan_info.zan_icons[7]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[8]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[9]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[10]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[11]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[12]}/>
+                            <ZanIconView src={this.props.zan_info.zan_icons[13]}/>
+                            <ZanIconView src={this.props.zan_info.more_zan}/>
+                        </View>
+                    </View>
+                );
+        } else {
+            return (
+                    <View style={styles.zan_row_area}>
+                        <ZanIconView src={this.props.zan_info.self_zan}/>
+                        <ZanIconView src={this.props.zan_info.zan_icons[0]}/>
+                        <ZanIconView src={this.props.zan_info.zan_icons[1]}/>
+                        <ZanIconView src={this.props.zan_info.zan_icons[2]}/>
+                        <ZanIconView src={this.props.zan_info.zan_icons[3]}/>
+                        <ZanIconView src={this.props.zan_info.zan_icons[4]}/>
+                        <ZanIconView src={this.props.zan_info.zan_icons[5]}/>
+                        <ZanIconView src={this.props.zan_info.zan_icons[6]}/>
+                    </View>
+                );
+        }
+    }
 };
 
 class RecommentView extends React.Component {
@@ -112,17 +164,29 @@ class HomeItemDetailView extends Component {
             item_detail: {
                 head_icon: require('./images/head.png'),            // 头像
                 nick_name: '',                   // 昵称
-                has_attention: false,       // 是否关注
                 banner: require('./images/hp_banner.png'),                 // banner
                 tags: [],
                 title: '',
                 read_count: 0,
                 publish_time: '',
                 html_content: '',           // webView content
-                zan_count: 0,
-                zan_icons: [],
-                comments: [],               // 评论
             },
+
+            zan_info: {
+                has_attention: false,       // 是否关注
+                zan_count: 0,
+                self_zan: {
+                    user_id: 'me',
+                    icon_src: require('./images/head_zan_1.png'),
+                },
+                zan_icons: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
+                more_zan: {
+                    user_id: '',        // 'more'
+                    icon_src: require('./images/more_zan.png'),
+                },
+            },
+
+            comments: [],               // 评论
         };
 
         this.banner_src = '';
@@ -134,6 +198,7 @@ class HomeItemDetailView extends Component {
 
     _load() {
         var _this_self = this;
+
         net_util.get( common.get_content_detail_url + "/" + _this_self.props.item_id, true, function(rsp_json_data) {
             var item_data = rsp_json_data.data;
 
@@ -149,41 +214,60 @@ class HomeItemDetailView extends Component {
             _this_self.state.item_detail.tags = item_data.tags;
 
             _this_self.state.item_detail.read_count = item_data.reading.total;
-
-            _this_self.state.item_detail.publish_time = item_data.date;
+            _this_self.state.item_detail.publish_time = common.get_publish_time( item_data.date );
 
             _this_self.has_inited = true;
             _this_self.setState( { item_detail: _this_self.state.item_detail } );
         });
 
-        this.state.item_detail.has_attention = true;
+        // 赞的列表
+        net_util.get( common.get_zan_url + "?content=" + _this_self.props.item_id, false, function(rsp_json_data) {
+            _this_self.state.zan_info.zan_count = 3;
+            _this_self.state.zan_info.has_attention = true;
 
-        this.state.item_detail.zan_count = 688;
-
-        net_util.get( common.get_comment_url + "?content=" + _this_self.props.item_id, false, function(rsp_json_data) {
-            //alert( rsp_json_data );
-        });
-
-        for( var i=0; i < 3; ++i ) {
-            var comment_info = {
-                head_icon: require('./images/user_head.png'),
-                comment_name: 'Motion_M',
-                comment_time: '6月30日 17:07',
-                comment_content: '略屌哦，哪里可以下载到这首歌和MV？',
-                recomments: [],
-            };
-
-            for( var j=0; j < 2; ++j ) {
-                comment_info.recomments.push( {
-                    nick_name: 'DJ Jennies',
-                    at_name: '  回复@' + comment_info.comment_name,
-                    recomment_content: '    在QQ音乐下载',
-                    recomment_time: '6月30日 17:20',
-                });
+            var tmp_count = _this_self.state.zan_info.zan_count <= 14 ? _this_self.state.zan_info.zan_count : 14;
+            for( var i=0; i < tmp_count; ++i ) {
+                var zan_icon_src = require('./images/zan_head_6.png');
+                _this_self.state.zan_info.zan_icons[i] = {
+                    user_id: 'id_' + i,
+                    icon_src: zan_icon_src,
+                };
             }
 
-            this.state.item_detail.comments.push( comment_info );
-        }
+            _this_self.state.zan_info.more_zan.user_id = ( _this_self.state.zan_info.zan_count >= 14 ? 'more' : '' );
+
+            _this_self.has_inited = true;
+            _this_self.setState( { zan_info: _this_self.state.zan_info } );
+        });
+
+        // 评论的列表
+        net_util.get( common.get_comment_url + "?content=" + _this_self.props.item_id, false, function(rsp_json_data) {
+            //alert( rsp_json_data );
+
+            for( var i=0; i < 3; ++i ) {
+                var comment_info = {
+                    head_icon: require('./images/user_head.png'),
+                    comment_name: 'Motion_M',
+                    comment_time: '6月30日 17:07',
+                    comment_content: '略屌哦，哪里可以下载到这首歌和MV？',
+                    recomments: [],
+                };
+
+                for( var j=0; j < 2; ++j ) {
+                    comment_info.recomments.push( {
+                        nick_name: 'DJ Jennies',
+                        at_name: '  回复@' + comment_info.comment_name,
+                        recomment_content: '    在QQ音乐下载',
+                        recomment_time: '6月30日 17:20',
+                    });
+                }
+
+                _this_self.state.comments.push( comment_info );
+            }
+
+            _this_self.has_inited = true;
+            _this_self.setState( { comments: _this_self.state.comments } );
+        });
     };
 
     _refresh() {
@@ -198,10 +282,10 @@ class HomeItemDetailView extends Component {
                 </View>
                    );
         } else {
-        var comment_title_text = '评论  (' + this.state.item_detail.comments.length + ')';
-        var attention_src = this.state.item_detail.has_attention ? require('./images/attention_action_2.png') : require('./images/attention_action_1.png');
-        var zan_title_text = this.state.item_detail.zan_count + '个人觉得这很奇格';
-        var comments = this.state.item_detail.comments;
+        var comment_title_text = '评论  (' + this.state.comments.length + ')';
+        var attention_src = this.state.zan_info.has_attention ? require('./images/attention_action_2.png') : require('./images/attention_action_1.png');
+        var zan_title_text = this.state.zan_info.zan_count + '个人觉得这很奇格';
+        var comments = this.state.comments;
         return (
                 <View style={{flex:1}}>
                     <common_views.BackTitleView text={'嘻哈圈'} navigator={this.props.navigator} />
@@ -261,26 +345,8 @@ class HomeItemDetailView extends Component {
                             <Image style={styles.zan_title} source={require('./images/line_zan.png')}>
                                 <Text style={styles.zan_title_text}>{zan_title_text}</Text>
                             </Image>
-                            <View style={styles.zan_row_area}>
-                                <ZanIconView src={require('./images/head_zan_1.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                            </View>
-                            <View style={styles.zan_row_area}>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/zan_head_6.png')}/>
-                                <ZanIconView src={require('./images/more_zan.png')}/>
-                            </View>
+                            <ZanAreaView zan_info={this.state.zan_info} zan_count={this.state.zan_info.zan_count} />
+                            
                         </View>
 
                         <View style={styles.comment_area}>
@@ -458,10 +524,10 @@ var styles = StyleSheet.create({
 
     zan_area: {
         width: 360,
-        height: 120,
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
+        marginTop: 20,
     },
 
     zan_title: {
@@ -480,11 +546,10 @@ var styles = StyleSheet.create({
     },
 
     zan_row_area: {
-        width: 360,
+        width: 320,
         height: 42,
         flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: 'flex-start',
     },
 
     zan_icon_image: {
