@@ -148,7 +148,7 @@ class HomeListView extends React.Component {
                     renderRow={ (rowData, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) => {
                         var src = { uri: common.url_prefix + rowData.uri }
                         return (
-                            <TouchableOpacity onPress={ () => { this.props.navigator.push({name: 'HomeItemDetailView'}); } } >
+                            <TouchableOpacity onPress={ () => { this.props.navigator.push({name: 'HomeItemDetailView', passProps: {item_id: rowData.item_id, banner: src}}); } } >
                                 <View style={styles.list_item_row}>
                                     <Image style={styles.list_item_image} source={src} />
                                     <View style={{flex:1}} >
