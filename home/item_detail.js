@@ -42,12 +42,12 @@ class HomeItemDetailView extends Component {
         var injectedJavaScript = `
           (function loop(){
             if (document.readyState === 'complete') {
-              var height = document.height;
+              var height = document.documentElement.clientHeight;
               window.location.hash = '#' + height;
             }
             setTimeout(function() {
               if (document.readyState === 'complete') {
-                var height = document.height;
+                var height = document.documentElement.clientHeight;
                 window.location.hash = '#' + height;
               } else {
                 loop();
@@ -100,9 +100,9 @@ class HomeItemDetailView extends Component {
                           onNavigationStateChange={(info, e)=>{
                             var height = 0;
                             if (info.url.indexOf("#") > 0) {
-                              var height = info.url.split("#").pop() / 1;
+                              height = info.url.split("#").pop() / 1;
                             } else {
-                              var height = info.url.replace('about:blank%23','') / 1;
+                              height = info.url.replace('about:blank%23','') / 1;
                             }
                             if (!isNaN(height)) {
                               this.setState({

@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 
 var user = require('../user_info/user.js');
-var YYListView = require('../common/YYListView.js');
 
 // tag 
 class TagView extends React.Component {
