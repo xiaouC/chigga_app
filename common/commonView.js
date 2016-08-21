@@ -6,7 +6,8 @@ import {
     TouchableOpacity,
     Text,
     Image,
-    StyleSheet
+    StyleSheet,
+    Animated,
 } from 'react-native';
 
 var BackTitleView = React.createClass({
@@ -32,6 +33,53 @@ var BackTitleView = React.createClass({
             );
     }
 });
+
+class Playground extends React.Component {
+    constructor( props ) {
+        super( props );
+
+        this.state = {
+            line_values: [new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)],
+        };
+
+        this.anim_time = 0;
+        this.anim_amplitude = 50;
+        this.anim_offset = 150;
+    }
+
+    render() {
+        return (
+                <View style={styles.square}>
+                    <Animated.View style={[styles.line, {height: this.state.line_values[0]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[1]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[2]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[3]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[4]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[5]}]} />
+                </View>
+               );
+    }
+
+    componentDidMount() {
+        this.loopAnimation();
+    }
+
+    componentWillUnmount() {
+        cancelAnimationFrame( this.anim_handle );
+    }
+
+    loopAnimation() {
+        for( var i=0; i < 6; ++i ) {
+            var time = this.anim_time + i * 0.5;
+            this.state.line_values[i] = Number( Math.cos( time ).toFixed( 2 ) ) * this.anim_amplitude + this.anim_offset;
+        }
+
+        this.anim_time += 0.35;
+        this.setState( { line_values: this.state.line_values } );
+
+        this.anim_handle = requestAnimationFrame( this.loopAnimation.bind( this ) );
+    }
+}
 
 var styles = StyleSheet.create({
     title_background: {
@@ -75,8 +123,26 @@ var styles = StyleSheet.create({
         paddingTop: 15,
     },
 
+    square: {
+        flex: 1,
+        backgroundColor: '#7f7f7f',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'stretch',
+    },
+
+    line: {
+        width: 10,
+        height: 100,
+        backgroundColor: 'white',
+        marginLeft: 8,
+        marginRight: 8,
+        borderRadius: 5,
+    },
 });
 
 module.exports = {
     'BackTitleView': BackTitleView,
+    'Playground': Playground,
 };

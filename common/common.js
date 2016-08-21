@@ -20,6 +20,7 @@ var common = {
     register_url:       cur_url_prefix + '/api/users',
     get_contents_url:   cur_url_prefix + '/api/contents',
     get_content_detail_url: cur_url_prefix + '/api/contents',
+    get_comment_url:    cur_url_prefix + '/api/comments',
 
     request_error: '{"error":{"code":"HTTP_ERROR","message":"网络异常"}}',
 

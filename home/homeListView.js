@@ -65,6 +65,7 @@ class ZanView extends React.Component {
 
 var net_util = require('../common/NetUtil.js');
 var common = require('../common/common.js');
+var common_views = require('../common/commonView.js');
 class HomeListView extends React.Component {
 
     constructor( props ) {
@@ -76,6 +77,7 @@ class HomeListView extends React.Component {
             page_size: 10,
             cur_page: 1,
 
+            has_inited: false,
             dataSource: ds.cloneWithRows( this.genRows() ),
         };
 
@@ -89,6 +91,8 @@ class HomeListView extends React.Component {
     load() {
         if( this.props.home_obj.need_refresh ) {
             this._refresh();
+        } else {
+            this.setState( { has_inited: true } );
         }
     }
 
@@ -113,6 +117,7 @@ class HomeListView extends React.Component {
 
             _this_self.props.home_obj.need_refresh = false;
             _this_self.setState( { dataSource: _this_self.ds.cloneWithRows(_this_self.props.home_obj.content_items) } );
+            _this_self.setState( { has_inited: true } );
         });
     }
 
@@ -120,6 +125,12 @@ class HomeListView extends React.Component {
     }
 
     componentDidMount() {
+        if( this.state.has_inited ) {
+            this.init_scroll_to();
+        }
+    }
+
+    init_scroll_to() {
         var _this_self = this;
 
         InteractionManager.runAfterInteractions(() => {
@@ -132,6 +143,13 @@ class HomeListView extends React.Component {
     yy_list_item_obj = null;
 
     render(){
+        if( !this.state.has_inited ) {
+            return (
+                <View style={{flex:1, alignSelf: 'stretch'}}>
+                    <common_views.Playground/>
+                </View>
+                   );
+        } else {
         return (
                 <ListView style={{flex:1}} ref={(ref)=>{this.yy_list_item_obj=ref;}} enableEmptySections={true}
                     dataSource = { this.state.dataSource }
@@ -171,7 +189,8 @@ class HomeListView extends React.Component {
                         );
                     }}
                 />
-        )
+            );
+        }
     }
 };
 

@@ -104,6 +104,8 @@ class HomeItemDetailView extends Component {
     constructor(props){
         super(props);
 
+        has_inited = false;
+
         this.state = {
             WebViewHeight: 0,
 
@@ -150,12 +152,17 @@ class HomeItemDetailView extends Component {
 
             _this_self.state.item_detail.publish_time = item_data.date;
 
+            _this_self.has_inited = true;
             _this_self.setState( { item_detail: _this_self.state.item_detail } );
         });
 
         this.state.item_detail.has_attention = true;
 
         this.state.item_detail.zan_count = 688;
+
+        net_util.get( common.get_comment_url + "?content=" + _this_self.props.item_id, false, function(rsp_json_data) {
+            //alert( rsp_json_data );
+        });
 
         for( var i=0; i < 3; ++i ) {
             var comment_info = {
@@ -183,6 +190,14 @@ class HomeItemDetailView extends Component {
     };
 
     render() {
+        if( !this.has_inited ) {
+            return (
+                <View style={{flex:1}}>
+                    <common_views.BackTitleView text={'嘻哈圈'} navigator={this.props.navigator} />
+                    <common_views.Playground/>
+                </View>
+                   );
+        } else {
         var comment_title_text = '评论  (' + this.state.item_detail.comments.length + ')';
         var attention_src = this.state.item_detail.has_attention ? require('./images/attention_action_2.png') : require('./images/attention_action_1.png');
         var zan_title_text = this.state.item_detail.zan_count + '个人觉得这很奇格';
@@ -299,6 +314,7 @@ class HomeItemDetailView extends Component {
                     </View>
                 </View>
             );
+        }
     };
 };
 
