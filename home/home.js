@@ -120,7 +120,7 @@ class HomeView extends Component {
         return (
                 <View style = { styles.hp_container } >
                     <Image style = { styles.hp_top } source = { require('./images/title.png') } >
-                        <Image style = { { width:84, height:25 } } source = { require('./images/chigga.png') } />
+                        <Image style = { styles.top_title_image } source = { require('./images/chigga.png') } />
                     </Image>
 
                     {this.content_view_list[this.state.cur_sel]}
@@ -148,6 +148,12 @@ var styles = StyleSheet.create({
         height: 53,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+
+    top_title_image: {
+        width: 80,
+        height: 16,
+        resizeMode: 'contain',
     },
 
     hp_content: {
