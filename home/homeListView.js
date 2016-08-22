@@ -50,10 +50,25 @@ class CountView extends React.Component {
 var zan_src_1 = require('./images/zan_1.png');
 var zan_src_2 = require('./images/zan_2.png');
 class ZanView extends React.Component {
+    constructor(props){
+        super(props);
+
+        this.state = {
+            is_zan: props.is_zan,
+        };
+    };
+
+    _zan() {
+        var _this_self = this;
+        user.dian_zan( this.props.item_id, this.state.is_zan, function() {
+            _this_self.setState( { is_zan: !_this_self.state.is_zan } );
+        });
+    };
+
     render() {
-        var zan_src = user.is_zan( 'id_1' ) ? zan_src_2 : zan_src_1;
+        var zan_src = this.state.is_zan ? zan_src_2 : zan_src_1;
         return (
-                <TouchableOpacity onPress={ () => { user.dian_zan( 'id_1' ); } } >
+                <TouchableOpacity onPress={this._zan.bind(this)}>
                     <View style={styles.count_item}>
                         <Image style={styles.count_image} source={zan_src} />
                         <Text style={styles.count_text}>{this.props.count}</Text>
@@ -112,6 +127,7 @@ class HomeListView extends React.Component {
                     comment_count: contents[i].comments,
                     zan_count: contents[i].likes,
                     uri: contents[i].thumbnail.src,
+                    is_zan: false,
                 });
             }
 
@@ -181,7 +197,7 @@ class HomeListView extends React.Component {
                                         <View style={styles.read_comment_zan_item}>
                                             <CountView index={0} count={rowData.read_count} />
                                             <CountView index={1} count={rowData.comment_count} />
-                                            <ZanView count={rowData.zan_count} />
+                                            <ZanView is_zan={rowData.is_zan} item_id={rowData.item_id} count={rowData.zan_count} />
                                         </View>
                                     </View>
                                 </View>

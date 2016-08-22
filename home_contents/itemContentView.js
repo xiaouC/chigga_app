@@ -14,6 +14,10 @@ import {
 var common = require('../common/common.js');
 var common_views = require('../common/commonView.js');
 var net_util = require('../common/NetUtil.js');
+var user = require('../user_info/user.js');
+
+var self_main_view = null;
+var self_zan_view = null;
 
 // tag
 class ItemTagView extends React.Component {
@@ -33,11 +37,45 @@ class ItemTagView extends React.Component {
 };
 
 class ZanIconView extends React.Component {
+    constructor(props){
+        super(props);
+
+        if( this.props.src.is_zan != null ) {
+            self_zan_view = this;
+
+            this.state = {
+                is_zan: this.props.src.is_zan,
+            };
+        }
+    };
+
+    _zan() {
+        if( this.props.src.is_zan != null ) {
+            var _this_self = this;
+            user.dian_zan( this.props.src.item_id, this.state.is_zan, function() {
+                var tmp_is_zan = !_this_self.state.is_zan;
+                _this_self.setState( { is_zan: tmp_is_zan } );
+
+                if( self_main_view != null ) {
+                    self_main_view.state.self_zan.is_zan = tmp_is_zan;
+                    self_main_view.setState( { self_zan: self_main_view.state.self_zan } );
+                }
+            });
+        } else {
+            alert( 'zan icon click!' );
+        }
+    };
+
     render() {
         if( this.props.src.user_id != null && this.props.src.user_id != '' ) {
+            var icon_src = this.props.src.icon_src;
+            if( this.props.src.is_zan != null ) {
+                icon_src = this.state.is_zan ? require('./images/head_zan_2.png') : require('./images/head_zan_1.png');
+            }
+
             return (
-                    <TouchableOpacity onPress={ () => { alert('zan icon click'); } }>
-                        <Image style={styles.zan_icon_image} source={this.props.src.icon_src}/>
+                    <TouchableOpacity onPress={this._zan.bind(this)}>
+                        <Image style={styles.zan_icon_image} source={icon_src}/>
                     </TouchableOpacity>
                    );
         } else {
@@ -156,11 +194,21 @@ class HomeItemDetailView extends Component {
     constructor(props){
         super(props);
 
+        self_main_view = this;
+
         has_inited = false;
 
         this.state = {
             WebViewHeight: 0,
 
+            self_zan: {
+                item_id: this.props.item_id,
+                is_zan: false,
+                user_id: 'me',
+                icon_src: require('./images/head_zan_1.png'),
+            },
+
+            has_attention: false,       // 是否关注
             item_detail: {
                 head_icon: require('./images/head.png'),            // 头像
                 nick_name: '',                   // 昵称
@@ -170,11 +218,6 @@ class HomeItemDetailView extends Component {
                 read_count: 0,
                 publish_time: '',
                 html_content: '',           // webView content
-                has_attention: false,       // 是否关注
-                self_zan: {
-                    user_id: 'me',
-                    icon_src: require('./images/head_zan_1.png'),
-                },
             },
 
             zan_info: {
@@ -216,11 +259,13 @@ class HomeItemDetailView extends Component {
             _this_self.state.item_detail.read_count = item_data.reading.total;
             _this_self.state.item_detail.publish_time = common.get_publish_time( item_data.date );
 
-            _this_self.state.item_detail.has_attention = item_data.followed;
-            _this_self.state.item_detail.self_zan.icon_src = item_data.liked ? require('./images/head_zan_2.png') : require('./images/head_zan_1.png');
+            _this_self.state.self_zan.is_zan = item_data.liked;
+            _this_self.state.self_zan.icon_src = item_data.liked ? require('./images/head_zan_2.png') : require('./images/head_zan_1.png');
 
             _this_self.has_inited = true;
+            _this_self.setState( { has_attention: item_data.followed } );
             _this_self.setState( { item_detail: _this_self.state.item_detail } );
+            _this_self.setState( { self_zan: _this_self.state.self_zan } );
         });
 
         // 赞的列表
@@ -275,6 +320,27 @@ class HomeItemDetailView extends Component {
     _refresh() {
     };
 
+    _zan() {
+        var _this_self = this;
+        user.dian_zan( this.props.item_id, this.state.self_zan.is_zan, function() {
+            var tmp_is_zan = !_this_self.state.self_zan.is_zan;
+
+            _this_self.state.self_zan.is_zan = tmp_is_zan;
+            _this_self.setState( { self_zan: _this_self.state.self_zan } );
+
+            if( self_zan_view != null ) {
+                self_zan_view.setState( { is_zan: tmp_is_zan } );
+            }
+        });
+    };
+
+    _attention() {
+        var _this_self = this;
+        user.attention( this.props.item_id, this.state.has_attention, function() {
+            _this_self.setState( { has_attention: !_this_self.state.has_attention } );
+        });
+    };
+
     render() {
         if( !this.has_inited ) {
             return (
@@ -285,9 +351,10 @@ class HomeItemDetailView extends Component {
                    );
         } else {
         var comment_title_text = '评论  (' + this.state.comments.length + ')';
-        var attention_src = this.state.item_detail.has_attention ? require('./images/attention_action_2.png') : require('./images/attention_action_1.png');
+        var attention_src = this.state.has_attention ? require('./images/attention_action_2.png') : require('./images/attention_action_1.png');
         var zan_title_text = this.state.zan_info.zan_count + '个人觉得这很奇格';
         var comments = this.state.comments;
+        var btn_zan_src = this.state.self_zan.is_zan ? require('./images/zan_2.png') : require('./images/zan_1.png');
         return (
                 <View style={{flex:1}}>
                     <common_views.BackTitleView text={'嘻哈圈'} navigator={this.props.navigator} />
@@ -298,8 +365,7 @@ class HomeItemDetailView extends Component {
                                 <Image style={styles.user_head_icon} source={this.state.item_detail.head_icon} />
                                 <Text style={styles.user_name}>{this.state.item_detail.nick_name}</Text>
                                 <View style={{flex:1}}/>
-                                <TouchableOpacity onPress={ () => {
-                                }}>
+                                <TouchableOpacity onPress={this._attention.bind(this)}>
                                     <Image style={styles.user_attention} source={attention_src} />
                                 </TouchableOpacity>
                             </View>
@@ -347,7 +413,7 @@ class HomeItemDetailView extends Component {
                             <Image style={styles.zan_title} source={require('./images/line_zan.png')}>
                                 <Text style={styles.zan_title_text}>{zan_title_text}</Text>
                             </Image>
-                            <ZanAreaView zan_info={this.state.zan_info} self_zan={this.state.item_detail.self_zan} zan_count={this.state.zan_info.zan_count} />
+                            <ZanAreaView zan_info={this.state.zan_info} self_zan={this.state.self_zan} zan_count={this.state.zan_info.zan_count} />
                             
                         </View>
 
@@ -360,9 +426,9 @@ class HomeItemDetailView extends Component {
 
                     <View style={styles.btn_item}>
                         <Image style={styles.zan_share_item} source={require('./images/tab_bottom_bg.png')}>
-                            <TouchableOpacity onPress={ () => { user.dian_zan( this.props.item_id ) }} >
+                            <TouchableOpacity onPress={this._zan.bind(this)} >
                                 <View style={styles.zan_item}>
-                                    <Image style={styles.zan_icon} source={require('./images/dian_zan_1.png')}/>
+                                    <Image style={styles.zan_icon} source={btn_zan_src}/>
                                     <Text style={styles.zan_text}>点赞</Text>
                                 </View>
                             </TouchableOpacity>

@@ -5,8 +5,6 @@ var net_util = require('../common/NetUtil.js');
 var user = {
     navigator: null,
 
-    session: null,
-
     user_id: null,
     nick_name: "",
     sex: 0,
@@ -53,11 +51,8 @@ var user = {
 
         var _this_self = this;
         net_util.postJson( common.register_url + "?mode=usual", data, true, function(rsp_json_data) {
-            if( rsp_json_data['error'] != 0 ) {
-                common.error_report( rsp_json_data['error'], rsp_json_data['message'] );
-            } else {
-                this.navigator.push({name: "PersonalInformation", passProps: {popToTop: true}});
-            }
+            _this_self.user_id = 'me',
+            _this_self.navigator.push({name: "PersonalInformation", passProps: {popToTop: true}});
         } );
     },
 
@@ -81,11 +76,8 @@ var user = {
 
         var _this_self = this;
         net_util.putJson( common.login_url, data, true, function(rsp_json_data) {
-            if( rsp_json_data['error'] != 0 ) {
-                common.error_report( rsp_json_data['error'], rsp_json_data['message'] );
-            } else {
-                _this_self.navigator.pop();
-            }
+            _this_self.user_id = 'me',
+            _this_self.navigator.pop();
         } );
     },
 
@@ -94,17 +86,31 @@ var user = {
     },
 
     // 点赞
-    dian_zan: function(id: string) {
-        // 如果没有登录的话，弹出登录界面
-        if( !this.has_login() ) {
-            this.navigator.push({name: 'Login'});
-            return;
-        }
+    dian_zan: function(id: string, is_zan: bool, callback) {
+        callback();
+        //// 如果没有登录的话，弹出登录界面
+        //if( !this.has_login() ) {
+        //    this.navigator.push({name: 'Login'});
+        //    return;
+        //}
+
+        //net_util.postJson( common.get_zan_url, { content: id }, true, function(rsp_json_data) {
+        //    callback();
+        //});
     },
 
-    is_zan: function(id: string) {
-        return false;
-    },
+    attention: function(id: string, has_attention: bool, callback) {
+        callback();
+        //// 如果没有登录的话，弹出登录界面
+        //if( !this.has_login() ) {
+        //    this.navigator.push({name: 'Login'});
+        //    return;
+        //}
+
+        //net_util.postJson( common.get_attentions_url, { content: id }, true, function(rsp_json_data) {
+        //    callback();
+        //});
+    }
 };
 
 module.exports = user;
