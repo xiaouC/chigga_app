@@ -7,5 +7,6 @@ navigation_views.set('Register', require('./login/registerView.js'));
 navigation_views.set('PersonalInformation', require('./login/personalInformationView.js'));
 navigation_views.set('HomeItemDetailView', require('./home/item_detail.js'));
 navigation_views.set('FansView', require('./user_info/fansView.js'));
+navigation_views.set('AttentionsView', require('./user_info/attentionsView.js'));
 
 module.exports = navigation_views;

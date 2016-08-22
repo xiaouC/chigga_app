@@ -27,7 +27,7 @@ var PersonalView = React.createClass({
                         <Text style={styles.signature}>CTC-造物主，这是无法阻止的Charlie，你知道的...</Text>
                     </Image>
                     <Image style={styles.row_item} source={require('./images/item_bg.png')} >
-                        <TouchableOpacity onPress={ () => { alert('attentions click!'); } }>
+                        <TouchableOpacity onPress={ () => { this.props.navigator.push({name: 'AttentionsView'}); } }>
                             <View style={styles.item} >
                                 <Text style={styles.item_count_text}>39</Text>
                                 <Text style={styles.item_text}>我的关注</Text>

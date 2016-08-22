@@ -81,6 +81,41 @@ class Playground extends React.Component {
     }
 }
 
+var relationship_src = [require('./images/attention_add.png'), require('./images/attention_each_other.png'), require('./images/attention_single.png')];
+class FanItemView extends React.Component {
+    render() {
+        if( this.props.index < this.props.fans_list.length ) {
+            var fan_info = this.props.fans_list[this.props.index];
+            var relation = relationship_src[fan_info.relation];
+            return (
+                    <View>
+                        <View style={styles.item_fan}>
+                            <View style={styles.fan_image}>
+                                <Image style={styles.fan_image_icon} source={fan_info.src}/>
+                            </View>
+                            <View style={styles.fan_summary}>
+                                <Text style={styles.fan_name}>{fan_info.nick_name}</Text>
+                                <Text style={styles.fan_signature}>{fan_info.signature}</Text>
+                                <Text style={styles.fan_desc}>{fan_info.desc}</Text>
+                            </View>
+                            <TouchableOpacity onPress={ () => { alert('relationship click!'); } }>
+                                <View style={styles.fan_relationship}>
+                                    <Image style={styles.fan_relationship_icon} source={relation}/>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                        <Image style={styles.line_fans} source={require('./images/line_fans.png')}/>
+
+                        <FanItemView fans_list={this.props.fans_list} index={this.props.index+1}/>
+                    </View>
+                   );
+        } else {
+            return null;
+        }
+    }
+};
+
 var styles = StyleSheet.create({
     title_background: {
         width: 360,
@@ -140,9 +175,84 @@ var styles = StyleSheet.create({
         marginRight: 8,
         borderRadius: 5,
     },
+
+    item_fan: {
+        width: 360,
+        height: 90,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+    },
+
+    fan_image: {
+        width: 72,
+        height: 72,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 12,
+        marginRight: 12,
+    },
+
+    fan_image_icon: {
+        width: 72,
+        height: 72,
+        resizeMode: 'contain',
+    },
+
+    fan_summary: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+    },
+
+    fan_name: {
+        fontSize: 14,
+        textAlign: 'left',
+        textAlignVertical: 'center',
+        color: '#868686',
+    },
+
+    fan_signature: {
+        fontSize: 10,
+        textAlign: 'left',
+        textAlignVertical: 'center',
+        color: '#868686',
+        marginTop: 8,
+        marginBottom: 8,
+    },
+
+    fan_desc: {
+        fontSize: 10,
+        textAlign: 'left',
+        textAlignVertical: 'center',
+        color: '#868686',
+    },
+
+    fan_relationship: {
+        width: 72,
+        height: 72,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 15,
+    },
+
+    fan_relationship_icon: {
+        width: 40,
+        height: 40,
+        alignSelf: 'center',
+    },
+
+    line_fans: {
+        width: 360,
+        height: 1,
+        resizeMode: 'contain',
+    },
 });
 
 module.exports = {
     'BackTitleView': BackTitleView,
     'Playground': Playground,
+    'FanItemView': FanItemView,
 };
