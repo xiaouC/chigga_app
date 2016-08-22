@@ -22,6 +22,7 @@ var common = {
     get_content_detail_url: cur_url_prefix + '/api/contents',
     get_comment_url:    cur_url_prefix + '/api/comments',
     get_zan_url:        cur_url_prefix + '/api/likes',
+    get_fans_url:       cur_url_prefix + '/api/fans',
 
     request_error: '{"error":{"code":"HTTP_ERROR","message":"网络异常"}}',
 

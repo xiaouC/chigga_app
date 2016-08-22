@@ -9,14 +9,7 @@ import {
 } from 'react-native';
 
 var user = require('./user_info/user.js');
-
-// navigator view list
-var navigator_views = new Map();
-navigator_views.set('Home', require('./home/home.js'));
-navigator_views.set('Login', require('./login/loginView.js'));
-navigator_views.set('Register', require('./login/registerView.js'));
-navigator_views.set('PersonalInformation', require('./login/personalInformationView.js'));
-navigator_views.set('HomeItemDetailView', require('./home/item_detail.js'));
+var navigation_views = require('./navigationViews.js');
 
 var Chigga = React.createClass({
 
@@ -28,7 +21,7 @@ var Chigga = React.createClass({
         var Component = router.component;
         this._navigator = navigator;
 
-        Component = navigator_views.get(router.name);
+        Component = navigation_views.get(router.name);
 
         return <Component navigator={navigator} {...router.passProps} />
     },

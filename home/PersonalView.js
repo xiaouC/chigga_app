@@ -27,18 +27,26 @@ var PersonalView = React.createClass({
                         <Text style={styles.signature}>CTC-造物主，这是无法阻止的Charlie，你知道的...</Text>
                     </Image>
                     <Image style={styles.row_item} source={require('./images/item_bg.png')} >
-                        <View style={styles.item} >
-                            <Text style={styles.item_count_text}>39</Text>
-                            <Text style={styles.item_text}>我的关注</Text>
-                        </View>
-                        <View style={styles.item} >
-                            <Text style={styles.item_count_text}>3724</Text>
-                            <Text style={styles.item_text}>粉丝</Text>
-                        </View>
-                        <View style={styles.item} >
-                            <Text style={styles.item_count_text}>68</Text>
-                            <Text style={styles.item_text}>已发布</Text>
-                        </View>
+                        <TouchableOpacity onPress={ () => { alert('attentions click!'); } }>
+                            <View style={styles.item} >
+                                <Text style={styles.item_count_text}>39</Text>
+                                <Text style={styles.item_text}>我的关注</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={ () => { this.props.navigator.push({name: 'FansView'}); } }>
+                            <View style={styles.item} >
+                                <Text style={styles.item_count_text}>3724</Text>
+                                <Text style={styles.item_text}>粉丝</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={ () => { alert('published click!'); } }>
+                            <View style={styles.item} >
+                                <Text style={styles.item_count_text}>68</Text>
+                                <Text style={styles.item_text}>已发布</Text>
+                            </View>
+                        </TouchableOpacity>
                     </Image>
                     <View style={styles.separator} backgroundColor='#CCCCCC'/>
                     <TouchableOpacity onPress={ () => {
