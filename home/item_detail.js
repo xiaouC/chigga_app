@@ -52,7 +52,7 @@ class ZanAreaView extends React.Component {
             return (
                     <View>
                         <View style={styles.zan_row_area}>
-                            <ZanIconView src={this.props.zan_info.self_zan}/>
+                            <ZanIconView src={this.props.self_zan}/>
                             <ZanIconView src={this.props.zan_info.zan_icons[0]}/>
                             <ZanIconView src={this.props.zan_info.zan_icons[1]}/>
                             <ZanIconView src={this.props.zan_info.zan_icons[2]}/>
@@ -76,7 +76,7 @@ class ZanAreaView extends React.Component {
         } else {
             return (
                     <View style={styles.zan_row_area}>
-                        <ZanIconView src={this.props.zan_info.self_zan}/>
+                        <ZanIconView src={this.props.self_zan}/>
                         <ZanIconView src={this.props.zan_info.zan_icons[0]}/>
                         <ZanIconView src={this.props.zan_info.zan_icons[1]}/>
                         <ZanIconView src={this.props.zan_info.zan_icons[2]}/>
@@ -170,15 +170,15 @@ class HomeItemDetailView extends Component {
                 read_count: 0,
                 publish_time: '',
                 html_content: '',           // webView content
-            },
-
-            zan_info: {
                 has_attention: false,       // 是否关注
-                zan_count: 0,
                 self_zan: {
                     user_id: 'me',
                     icon_src: require('./images/head_zan_1.png'),
                 },
+            },
+
+            zan_info: {
+                zan_count: 0,
                 zan_icons: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
                 more_zan: {
                     user_id: '',        // 'more'
@@ -216,6 +216,9 @@ class HomeItemDetailView extends Component {
             _this_self.state.item_detail.read_count = item_data.reading.total;
             _this_self.state.item_detail.publish_time = common.get_publish_time( item_data.date );
 
+            _this_self.state.item_detail.has_attention = item_data.followed;
+            _this_self.state.item_detail.self_zan.icon_src = item_data.liked ? require('./images/head_zan_2.png') : require('./images/head_zan_1.png');
+
             _this_self.has_inited = true;
             _this_self.setState( { item_detail: _this_self.state.item_detail } );
         });
@@ -223,7 +226,6 @@ class HomeItemDetailView extends Component {
         // 赞的列表
         net_util.get( common.get_zan_url + "?content=" + _this_self.props.item_id, false, function(rsp_json_data) {
             _this_self.state.zan_info.zan_count = 3;
-            _this_self.state.zan_info.has_attention = true;
 
             var tmp_count = _this_self.state.zan_info.zan_count <= 14 ? _this_self.state.zan_info.zan_count : 14;
             for( var i=0; i < tmp_count; ++i ) {
@@ -283,7 +285,7 @@ class HomeItemDetailView extends Component {
                    );
         } else {
         var comment_title_text = '评论  (' + this.state.comments.length + ')';
-        var attention_src = this.state.zan_info.has_attention ? require('./images/attention_action_2.png') : require('./images/attention_action_1.png');
+        var attention_src = this.state.item_detail.has_attention ? require('./images/attention_action_2.png') : require('./images/attention_action_1.png');
         var zan_title_text = this.state.zan_info.zan_count + '个人觉得这很奇格';
         var comments = this.state.comments;
         return (
@@ -345,7 +347,7 @@ class HomeItemDetailView extends Component {
                             <Image style={styles.zan_title} source={require('./images/line_zan.png')}>
                                 <Text style={styles.zan_title_text}>{zan_title_text}</Text>
                             </Image>
-                            <ZanAreaView zan_info={this.state.zan_info} zan_count={this.state.zan_info.zan_count} />
+                            <ZanAreaView zan_info={this.state.zan_info} self_zan={this.state.item_detail.self_zan} zan_count={this.state.zan_info.zan_count} />
                             
                         </View>
 
