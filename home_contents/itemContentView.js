@@ -289,7 +289,7 @@ class HomeItemDetailView extends Component {
 
         // 评论的列表
         net_util.get( common.get_comment_url + "?content=" + _this_self.props.item_id, false, function(rsp_json_data) {
-            //alert( rsp_json_data );
+            alert( rsp_json_data );
 
             for( var i=0; i < 3; ++i ) {
                 var comment_info = {
@@ -441,7 +441,11 @@ class HomeItemDetailView extends Component {
                             </TouchableOpacity>
                         </Image>
                         <View style={styles.write_comment_item}>
-                            <TouchableOpacity onPress={ () => { user.write_comment( this.props.item_id ) }} >
+                            <TouchableOpacity onPress={ () => {
+                                if( user.check_login() ) {
+                                    this.props.navigator.push({name: 'WriteCommentView'});
+                                }
+                            }}>
                                 <Image style={styles.write_comment_icon} source={require('./images/write_comment.png')} />
                             </TouchableOpacity>
                         </View>

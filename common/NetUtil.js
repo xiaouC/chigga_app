@@ -15,7 +15,8 @@ var process_fetch = function( url, fetch_options, parse_json, callback ) {
                 var rsp_json_data = JSON.parse( responseText );
 
                 if( rsp_json_data['error'] != 0 ) {
-                    common.error_report( rsp_json_data['error'], rsp_json_data['message'] );
+                    alert( responseText );
+                    //common.error_report( rsp_json_data['error'], rsp_json_data['message'] );
 
                     return;
                 }

@@ -8,5 +8,6 @@ navigation_views.set('PersonalInformation', require('./login/personalInformation
 navigation_views.set('HomeItemDetailView', require('./home_contents/itemContentView.js'));
 navigation_views.set('FansView', require('./user_info/fansView.js'));
 navigation_views.set('AttentionsView', require('./user_info/attentionsView.js'));
+navigation_views.set('WriteCommentView', require('./home_contents/writeCommentView.js'));
 
 module.exports = navigation_views;

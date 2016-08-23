@@ -17,6 +17,16 @@ var user = {
         return false;
     },
 
+    check_login: function() {
+        if( !this.has_login() ) {
+            this.navigator.push({name: 'Login'});
+
+            return false;
+        }
+
+        return true;
+    },
+
     register: function( user_account, user_email, user_password_1, user_password_2 ) {
         if( user_account.replace( /(^s*)|(s*$)/g, "" ).length ==0 ) {
             alert( '账号不能为空！' );
@@ -87,16 +97,15 @@ var user = {
 
     // 点赞
     dian_zan: function(id: string, is_zan: bool, callback) {
-        callback();
-        //// 如果没有登录的话，弹出登录界面
-        //if( !this.has_login() ) {
-        //    this.navigator.push({name: 'Login'});
-        //    return;
-        //}
+        // 如果没有登录的话，弹出登录界面
+        if( !this.has_login() ) {
+            this.navigator.push({name: 'Login'});
+            return;
+        }
 
-        //net_util.postJson( common.get_zan_url, { content: id }, true, function(rsp_json_data) {
-        //    callback();
-        //});
+        net_util.postJson( common.get_zan_url, { 'content': id }, true, function(rsp_json_data) {
+            callback();
+        });
     },
 
     attention: function(id: string, has_attention: bool, callback) {
@@ -107,10 +116,22 @@ var user = {
         //    return;
         //}
 
-        //net_util.postJson( common.get_attentions_url, { content: id }, true, function(rsp_json_data) {
+        //net_util.postJson( common.get_attentions_url, { 'content': id }, true, function(rsp_json_data) {
         //    callback();
         //});
-    }
+    },
+
+    write_comment: function(id: string, comment: string, callback) {
+        // 如果没有登录的话，弹出登录界面
+        if( !this.has_login() ) {
+            this.navigator.push({name: 'Login'});
+            return;
+        }
+
+        net_util.postJson( common.get_comment_url, { 'content': id, 'comment': comment }, true, function(rsp_json_data) {
+            callback();
+        });
+    },
 };
 
 module.exports = user;
