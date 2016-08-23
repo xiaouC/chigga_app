@@ -289,7 +289,7 @@ class HomeItemDetailView extends Component {
 
         // 评论的列表
         net_util.get( common.get_comment_url + "?content=" + _this_self.props.item_id, false, function(rsp_json_data) {
-            alert( rsp_json_data );
+            //alert( rsp_json_data );
 
             for( var i=0; i < 3; ++i ) {
                 var comment_info = {
