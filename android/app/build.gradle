@@ -104,10 +104,22 @@ android {
             include "armeabi-v7a", "x86"
         }
     }
+
+
+    signingConfigs {
+        release {
+            storeFile file('./yy2039.keystore')
+            keyAlias 'yy2039.keystore'
+            keyPassword 'yy2039'
+            storePassword 'yy2039'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.release
         }
     }
     // applicationVariants are e.g. debug, release
