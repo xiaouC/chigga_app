@@ -11,6 +11,7 @@ var process_fetch = function( url, fetch_options, parse_json, callback ) {
 
             return response.text();
         }).then( (responseText) => {
+            console.log( 'fly responseText : ' + responseText );
             if( parse_json ) {
                 var rsp_json_data = JSON.parse( responseText );
 

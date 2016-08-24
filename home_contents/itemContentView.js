@@ -8,7 +8,8 @@ import {
     TouchableOpacity,
     Text,
     Image,
-    StyleSheet
+    StyleSheet,
+    Modal,
 } from 'react-native';
 
 var common = require('../common/common.js');
@@ -129,23 +130,36 @@ class ZanAreaView extends React.Component {
 };
 
 class RecommentView extends React.Component {
+    _reply() {
+        if( self_main_view != null ) {
+            var recomment_info = this.props.recomments[this.props.index];
+
+            self_main_view.reply_info.parent_id = recomment_info.id;
+            self_main_view.set_modal_visible( true );
+        }
+    }
+
     render() {
         if( this.props.index < this.props.recomments.length ) {
             var recomment_info = this.props.recomments[this.props.index];
-            var at_name = '  回复@' + recomment_info.at_name;
-            var content = '    ' + recomment_info.comment_content;
+            var content = ':' + recomment_info.comment_content;
             return (
                     <View>
                         <View style={styles.recomment_item}>
-                            <Text style={styles.recomment_text_1}>
-                                {recomment_info.comment_name}
-                                <Text style={styles.recomment_text_2}>
-                                    {at_name}
-                                    <Text style={styles.recomment_text_3}>
-                                        {content}
+                            <TouchableOpacity onPress={this._reply.bind(this)}>
+                                <Text style={styles.recomment_text_1}>
+                                    {recomment_info.comment_name}
+                                    <Text style={styles.recomment_text_2}>
+                                        {'回复'}
+                                        <Text style={styles.recomment_text_1}>
+                                            {recomment_info.at_name}
+                                            <Text style={styles.recomment_text_2}>
+                                                {content}
+                                            </Text>
+                                        </Text>
                                     </Text>
                                 </Text>
-                            </Text>
+                            </TouchableOpacity>
                             <Text style={styles.recomment_time}>{recomment_info.comment_time}</Text>
                         </View>
                         <RecommentView recomments={this.props.recomments} index={this.props.index+1}/>
@@ -161,8 +175,17 @@ class RecommentView extends React.Component {
 
 // 评论
 class CommentView extends React.Component {
+    _reply() {
+        if( self_main_view != null ) {
+            var comment_info = this.props.comments[this.props.index];
+
+            self_main_view.reply_info.parent_id = comment_info.id;
+            self_main_view.set_modal_visible( true );
+        }
+    }
+
     render() {
-        if( this.props.index < this.props.comments.length ) {
+        if( this.props.index >= 0 && this.props.index < this.props.comments.length ) {
             var comment_info = this.props.comments[this.props.index];
             return (
                     <View style={styles.comment_item}>
@@ -176,13 +199,15 @@ class CommentView extends React.Component {
                                     <View style={{flex: 1} }/>
                                     <Text style={styles.comment_time}>{comment_info.comment_time}</Text>
                                 </View>
-                                <Text style={styles.comment_content_text}>{comment_info.comment_content}</Text>
+                                <TouchableOpacity onPress={this._reply.bind(this)}>
+                                    <Text style={styles.comment_content_text}>{comment_info.comment_content}</Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
                         <View style={styles.recomment_area}>
                             <RecommentView recomments={comment_info.children} index={0}/>
                         </View>
-                        <CommentView comments={this.props.comments} index={this.props.index+1} />
+                        <CommentView comments={this.props.comments} index={this.props.index-1} />
                     </View>
                    );
         } else {
@@ -198,9 +223,16 @@ class HomeItemDetailView extends Component {
 
         self_main_view = this;
 
+        this.reply_info = {
+            text: '',
+            parent_id: '',
+        };
+
         has_inited = false;
 
         this.state = {
+            modal_visible: false,
+
             WebViewHeight: 0,
 
             self_zan: {
@@ -244,13 +276,20 @@ class HomeItemDetailView extends Component {
         setTimeout( function() { _this_self._load(); }, 1500 );
     };
 
+    set_modal_visible( visible ) {
+        this.setState( { modal_visible: visible } );
+    };
+
     _append_comment( comment_info ) {
         this.map_comments.set( comment_info.id, comment_info );
 
         comment_info.children = [];
 
+
         if( comment_info.parent_id != null ) {
+            console.log( 'fly comment_info.parent_id : ' + comment_info.parent_id );
             var parent_comment_info = this.map_comments.get( comment_info.parent_id );
+            console.log( 'parent_comment_info : ' + parent_comment_info )
             if( parent_comment_info != null && parent_comment_info.root_id != null ) {
                 var root_comment_info = this.map_comments.get( parent_comment_info.root_id );
                 if( root_comment_info != null ) {
@@ -314,14 +353,24 @@ class HomeItemDetailView extends Component {
         });
 
         // 评论的列表
+        this._refresh_comments();
+    };
+
+
+    _refresh_comments() {
+        this.map_comments.clear();
+        this.state.comments = [];
+        this.state.comment_count = 0;
+
+        var _this_self = this;
         net_util.get( common.get_comment_url + "?content=" + _this_self.props.item_id, true, function(rsp_json_data) {
             var all_comments = rsp_json_data.data.comments;
 
             _this_self.state.comment_count = all_comments.length;
-            for( var i=0; i< all_comments.length; ++i ) {
+            for( var i=all_comments.length-1; i>=0; --i ) {
                 var comment_info = {
                     id: all_comments[i]._id,                        // 评论的唯一 ID
-                    parent_id: all_comments[i].parent_id,
+                    parent_id: all_comments[i].parent,
                     user_id: all_comments[i].user._id,              // 发表这个评论的用户 ID
                     comment_name: all_comments[i].user.nickname,    // 发表这个评论的用户的昵称
                     head_icon: require('./images/user_head.png'),   // 发表这个评论的用户的头像
@@ -407,6 +456,17 @@ class HomeItemDetailView extends Component {
         });
     };
 
+    _reply() {
+        var _this_self = this;
+        user.write_comment( this.props.item_id, this.reply_info.parent_id, this.reply_info.text, function() {
+            _this_self._refresh_comments();
+        });
+
+        setTimeout(function() {
+            _this_self.set_modal_visible( false );
+        }, 10);
+    };
+
     render() {
         if( !this.has_inited ) {
             return (
@@ -422,6 +482,15 @@ class HomeItemDetailView extends Component {
         var btn_zan_src = this.state.self_zan.is_zan ? require('./images/zan_2.png') : require('./images/zan_1.png');
         return (
                 <View style={{flex:1}}>
+                    <Modal
+                        animationType={'none'}
+                        transparent={true}
+                        visible={this.state.modal_visible}
+                        onRequestClose={() => {this.set_modal_visible(false)}}
+                        >
+                        <common_views.QuickInputView onPress={this._reply.bind(this)} main_view={this}/>
+                    </Modal>
+
                     <common_views.BackTitleView text={'嘻哈圈'} navigator={this.props.navigator} />
 
                     <ScrollView contentContainerStyle={{backgroundColor:'white'}}>
@@ -483,9 +552,18 @@ class HomeItemDetailView extends Component {
                         </View>
 
                         <View style={styles.comment_area}>
-                            <Text style={styles.comment_title}>{comment_title_text}</Text>
+                            <View style={styles.comment_title_row}>
+                                <Text style={styles.comment_title}>{comment_title_text}</Text>
+                                <View style={{flex: 1}}/>
+                                <TouchableOpacity onPress={()=>{
+                                    this.reply_info.parent_id = null;
+                                    this.set_modal_visible( true );
+                                }}>
+                                    <Image style={styles.comment_icon} source={require('./images/comment.png')}/>
+                                </TouchableOpacity>
+                            </View>
                             <Image style={styles.comment_line} source={require('./images/line_comment.png')}/>
-                            <CommentView comments={this.state.comments} index={0} />
+                            <CommentView comments={this.state.comments} index={this.state.comments.length-1} />
                         </View>
                     </ScrollView>
 
@@ -702,15 +780,31 @@ var styles = StyleSheet.create({
         alignItems: 'center',
     },
 
+    comment_title_row: {
+        width: 340,
+        height: 40,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        marginTop: 20,
+    },
+
     comment_title: {
-        width: 320,
         height: 40,
         fontSize: 16,
         textAlign: 'left',
         textAlignVertical: 'center',
         color: '#7F7F7F',
-        marginTop: 20,
         marginLeft: 25,
+        marginBottom: 3,
+    },
+
+    comment_icon: {
+        width: 20,
+        height: 20,
+        resizeMode: 'contain',
+        alignSelf: 'center',
+        marginRight: 5,
     },
 
     comment_line: {
@@ -777,7 +871,7 @@ var styles = StyleSheet.create({
         fontSize: 12,
         textAlign: 'left',
         textAlignVertical: 'center',
-        color: 'black',
+        color: 'dodgerblue',
     },
 
     comment_time: {
@@ -795,7 +889,7 @@ var styles = StyleSheet.create({
         fontSize: 14,
         textAlign: 'left',
         textAlignVertical: 'center',
-        color: '#7F7F7F',
+        color: 'black',
     },
 
     recomment_area: {
@@ -812,11 +906,10 @@ var styles = StyleSheet.create({
     },
 
     recomment_text_1: {
-        height: 25,
         fontSize: 12,
         textAlign: 'left',
         textAlignVertical: 'center',
-        color: '#7F7F7F',
+        color: 'dodgerblue',
     },
 
     recomment_text_2: {
@@ -832,7 +925,7 @@ var styles = StyleSheet.create({
         fontSize: 12,
         textAlign: 'left',
         textAlignVertical: 'center',
-        color: '#7F7F7F',
+        color: 'black',
     },
 
     recomment_time: {

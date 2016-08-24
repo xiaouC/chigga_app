@@ -9,13 +9,14 @@ import {
     StyleSheet,
     Animated,
     ScrollView,
+    TextInput,
 } from 'react-native';
 
 var BackTitleView = React.createClass({
     render(){
         var back_text = this.props.popToTop ? "跳过" : "返回";
         return (
-                <Image style={styles.title_background} source={require('./images/title.png')} >
+                <Image style={BackTitleStyles.title_background} source={require('./images/title.png')} >
                     <TouchableOpacity onPress={ () => {
                         if( this.props.popToTop ) {
                             this.props.navigator.popToTop();
@@ -23,151 +24,19 @@ var BackTitleView = React.createClass({
                             this.props.navigator.pop(); 
                         }
                     }}>
-                        <View style={styles.back_item}>
-                            <Image style={styles.back_arrow} source={require('./images/back_arrow.png')} />
-                            <Text style={styles.title_back_text}>{back_text}</Text>
+                        <View style={BackTitleStyles.back_item}>
+                            <Image style={BackTitleStyles.back_arrow} source={require('./images/back_arrow.png')} />
+                            <Text style={BackTitleStyles.title_back_text}>{back_text}</Text>
                         </View>
                     </TouchableOpacity>
-                    <Text style={styles.title_text}>{this.props.text}</Text>
-                    <View style={styles.back_item} />
+                    <Text style={BackTitleStyles.title_text}>{this.props.text}</Text>
+                    <View style={BackTitleStyles.back_item} />
                 </Image>
             );
     }
 });
 
-class Playground extends React.Component {
-    constructor( props ) {
-        super( props );
-
-        this.state = {
-            line_values: [new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)],
-        };
-
-        this.anim_time = 0;
-        this.anim_amplitude = 50;
-        this.anim_offset = 150;
-    }
-
-    render() {
-        return (
-                <View style={styles.square}>
-                    <Animated.View style={[styles.line, {height: this.state.line_values[0]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[1]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[2]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[3]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[4]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[5]}]} />
-                </View>
-               );
-    }
-
-    componentDidMount() {
-        this.loopAnimation();
-    }
-
-    componentWillUnmount() {
-        cancelAnimationFrame( this.anim_handle );
-    }
-
-    loopAnimation() {
-        for( var i=0; i < 6; ++i ) {
-            var time = this.anim_time + i * 0.5;
-            this.state.line_values[i] = Number( Math.cos( time ).toFixed( 2 ) ) * this.anim_amplitude + this.anim_offset;
-        }
-
-        this.anim_time += 0.35;
-        this.setState( { line_values: this.state.line_values } );
-
-        this.anim_handle = requestAnimationFrame( this.loopAnimation.bind( this ) );
-    }
-}
-
-var relationship_src = [require('./images/attention_add.png'), require('./images/attention_each_other.png'), require('./images/attention_single.png')];
-class FanItemView extends React.Component {
-    render() {
-        if( this.props.index < this.props.fans_list.length ) {
-            var fan_info = this.props.fans_list[this.props.index];
-            var relation = relationship_src[fan_info.relation];
-            return (
-                    <View>
-                        <View style={styles.item_fan}>
-                            <View style={styles.fan_image}>
-                                <Image style={styles.fan_image_icon} source={fan_info.src}/>
-                            </View>
-                            <View style={styles.fan_summary}>
-                                <Text style={styles.fan_name}>{fan_info.nick_name}</Text>
-                                <Text style={styles.fan_signature}>{fan_info.signature}</Text>
-                                <Text style={styles.fan_desc}>{fan_info.desc}</Text>
-                            </View>
-                            <TouchableOpacity onPress={ () => { alert('relationship click!'); } }>
-                                <View style={styles.fan_relationship}>
-                                    <Image style={styles.fan_relationship_icon} source={relation}/>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        <Image style={styles.line_fans} source={require('./images/line_fans.png')}/>
-
-                        <FanItemView fans_list={this.props.fans_list} index={this.props.index+1}/>
-                    </View>
-                   );
-        } else {
-            return null;
-        }
-    }
-};
-
-class QuickInput extends React.Component {
-    constructor( props ) {
-        super( props );
-
-        this.state = {
-            keyboardSpace: 0,
-        };
-    }
-
-    render() {
-        return (
-                <ScrollView
-                    ref='keyboardView'
-                    keyboardDismissMode='interactive'
-                    contentInset={{bottom: this.state.keyboardSpace}}
-                    showsVerticalScrollIndicator={true}
-                    >
-                <View style={styles.quick_input_area}>
-                    <Animated.View style={[styles.line, {height: this.state.line_values[0]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[1]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[2]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[3]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[4]}]} />
-                    <Animated.View style={[styles.line, {height: this.state.line_values[5]}]} />
-                </View>
-                </ScrollView>
-               );
-    }
-
-    componentDidMount() {
-        DeviceEventEmitter.addListener( 'keyboardWillShow', this.updateKeyboardSpace );
-        DeviceEventEmitter.addListener( 'keyboardWillHide', this.resetKeyboardSpace );
-    }
-
-    componentWillUnmount() {
-        DeviceEventEmitter.removeAllListeners( 'keyboardWillShow' )
-        DeviceEventEmitter.removeAllListeners( 'keyboardWillHide' )
-    }
-
-    updateKeyboardSpace(frames) {
-        const keyboardSpace = frames.endCoordinates.height; // 获取键盘高度 
-        this.setState( { keyboardSpace: keyboardSpace } );
-    }
-
-    resetKeyboardSpace() {
-        this.setState( { keyboardSpace: 0 } );
-    }
-
-}
-
-var styles = StyleSheet.create({
+var BackTitleStyles = StyleSheet.create({
     title_background: {
         width: 360,
         height: 53,
@@ -209,6 +78,57 @@ var styles = StyleSheet.create({
         paddingTop: 15,
     },
 
+});
+
+class Playground extends React.Component {
+    constructor( props ) {
+        super( props );
+
+        this.state = {
+            line_values: [new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0), new Animated.Value(0)],
+        };
+
+        this.anim_time = 0;
+        this.anim_amplitude = 50;
+        this.anim_offset = 150;
+    }
+
+    render() {
+        return (
+                <View style={PlaygroundStyles.square}>
+                    <Animated.View style={[PlaygroundStyles.line, {height: this.state.line_values[0]}]} />
+                    <Animated.View style={[PlaygroundStyles.line, {height: this.state.line_values[1]}]} />
+                    <Animated.View style={[PlaygroundStyles.line, {height: this.state.line_values[2]}]} />
+                    <Animated.View style={[PlaygroundStyles.line, {height: this.state.line_values[3]}]} />
+                    <Animated.View style={[PlaygroundStyles.line, {height: this.state.line_values[4]}]} />
+                    <Animated.View style={[PlaygroundStyles.line, {height: this.state.line_values[5]}]} />
+                </View>
+               );
+    }
+
+    componentDidMount() {
+        this.loopAnimation();
+    }
+
+    componentWillUnmount() {
+        cancelAnimationFrame( this.anim_handle );
+    }
+
+    loopAnimation() {
+        for( var i=0; i < 6; ++i ) {
+            var time = this.anim_time + i * 0.5;
+            this.state.line_values[i] = Number( Math.cos( time ).toFixed( 2 ) ) * this.anim_amplitude + this.anim_offset;
+        }
+
+        this.anim_time += 0.35;
+        this.setState( { line_values: this.state.line_values } );
+
+        this.anim_handle = requestAnimationFrame( this.loopAnimation.bind( this ) );
+    }
+}
+
+var PlaygroundStyles = StyleSheet.create({
+
     square: {
         flex: 1,
         backgroundColor: '#7f7f7f',
@@ -226,6 +146,45 @@ var styles = StyleSheet.create({
         marginRight: 8,
         borderRadius: 5,
     },
+
+});
+
+var relationship_src = [require('./images/attention_add.png'), require('./images/attention_each_other.png'), require('./images/attention_single.png')];
+class FanItemView extends React.Component {
+    render() {
+        if( this.props.index < this.props.fans_list.length ) {
+            var fan_info = this.props.fans_list[this.props.index];
+            var relation = relationship_src[fan_info.relation];
+            return (
+                    <View>
+                        <View style={FanItemStyles.item_fan}>
+                            <View style={FanItemStyles.fan_image}>
+                                <Image style={FanItemStyles.fan_image_icon} source={fan_info.src}/>
+                            </View>
+                            <View style={FanItemStyles.fan_summary}>
+                                <Text style={FanItemStyles.fan_name}>{fan_info.nick_name}</Text>
+                                <Text style={FanItemStyles.fan_signature}>{fan_info.signature}</Text>
+                                <Text style={FanItemStyles.fan_desc}>{fan_info.desc}</Text>
+                            </View>
+                            <TouchableOpacity onPress={ () => { alert('relationship click!'); } }>
+                                <View style={FanItemStyles.fan_relationship}>
+                                    <Image style={FanItemStyles.fan_relationship_icon} source={relation}/>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                        <Image style={FanItemStyles.line_fans} source={require('./images/line_fans.png')}/>
+
+                        <FanItemView fans_list={this.props.fans_list} index={this.props.index+1}/>
+                    </View>
+                   );
+        } else {
+            return null;
+        }
+    }
+};
+
+var FanItemStyles = StyleSheet.create({
 
     item_fan: {
         width: 360,
@@ -300,11 +259,61 @@ var styles = StyleSheet.create({
         height: 1,
         resizeMode: 'contain',
     },
+
+});
+
+class QuickInputView extends React.Component {
+    _on_change_text(text) {
+        this.props.main_view.reply_info.text = text;
+    }
+
+    render() {
+        return (
+                <View style={QuickInputStyles.quick_input_view}>
+                    <View style={QuickInputStyles.quick_input_content_view}>
+                        <TextInput style={QuickInputStyles.input_text} autoFocus={true} onChangeText={this._on_change_text.bind(this)}/>
+                        <TouchableOpacity onPress={this.props.onPress}>
+                            <Image style={QuickInputStyles.submit_button} source={require('./images/reply.png')}/>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+               );
+    }
+};
+
+var QuickInputStyles = StyleSheet.create({
+
+    quick_input_view: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+
+    quick_input_content_view: {
+        width: 360,
+        height: 40,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+
+    input_text: {
+        width: 280,
+        height: 40,
+        textAlign: 'left',
+        color: 'black',
+    },
+
+    submit_button: {
+        width: 70,
+        height: 40,
+        resizeMode: 'contain',
+    },
 });
 
 module.exports = {
     'BackTitleView': BackTitleView,
     'Playground': Playground,
     'FanItemView': FanItemView,
-    'QuickInput': QuickInput,
+    'QuickInputView': QuickInputView,
 };
