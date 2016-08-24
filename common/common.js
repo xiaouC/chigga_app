@@ -72,6 +72,23 @@ var common = {
 
         return '刚刚';
     },
+
+    get_comment_time: function( time: string ) {
+        var now_time = new Date();
+        var dt = new Date( time );
+
+        var year = now_time.getFullYear() - dt.getFullYear();
+        if( year > 0 ) {
+            return year + '年前'
+        }
+
+        var month = dt.getMonth();
+        var date = dt.getDate();
+        var hour = dt.getHours();
+        var min = dt.getMinutes();
+
+        return month + '月' + date + '日 ' + hour + ':' + min;
+    },
 };
 
 module.exports = common;

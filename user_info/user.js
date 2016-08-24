@@ -121,14 +121,17 @@ var user = {
         //});
     },
 
-    write_comment: function(id: string, comment: string, callback) {
+    write_comment: function(id: string, parent_id: string, comment: string, callback) {
         // 如果没有登录的话，弹出登录界面
         if( !this.has_login() ) {
             this.navigator.push({name: 'Login'});
             return;
         }
 
-        net_util.postJson( common.get_comment_url, { 'content': id, 'comment': comment }, true, function(rsp_json_data) {
+        var tt = 'url: ' + common.get_comment_url + ', id: ' + id + ', comment:' + comment;
+        alert( tt );
+        net_util.postJson( common.get_comment_url, { 'content': id, 'comment': comment, 'parent': parent_id }, false, function(rsp_json_data) {
+            //alert(rsp_json_data);
             callback();
         });
     },

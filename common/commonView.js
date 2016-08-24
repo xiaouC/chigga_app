@@ -8,6 +8,7 @@ import {
     Image,
     StyleSheet,
     Animated,
+    ScrollView,
 } from 'react-native';
 
 var BackTitleView = React.createClass({
@@ -115,6 +116,56 @@ class FanItemView extends React.Component {
         }
     }
 };
+
+class QuickInput extends React.Component {
+    constructor( props ) {
+        super( props );
+
+        this.state = {
+            keyboardSpace: 0,
+        };
+    }
+
+    render() {
+        return (
+                <ScrollView
+                    ref='keyboardView'
+                    keyboardDismissMode='interactive'
+                    contentInset={{bottom: this.state.keyboardSpace}}
+                    showsVerticalScrollIndicator={true}
+                    >
+                <View style={styles.quick_input_area}>
+                    <Animated.View style={[styles.line, {height: this.state.line_values[0]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[1]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[2]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[3]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[4]}]} />
+                    <Animated.View style={[styles.line, {height: this.state.line_values[5]}]} />
+                </View>
+                </ScrollView>
+               );
+    }
+
+    componentDidMount() {
+        DeviceEventEmitter.addListener( 'keyboardWillShow', this.updateKeyboardSpace );
+        DeviceEventEmitter.addListener( 'keyboardWillHide', this.resetKeyboardSpace );
+    }
+
+    componentWillUnmount() {
+        DeviceEventEmitter.removeAllListeners( 'keyboardWillShow' )
+        DeviceEventEmitter.removeAllListeners( 'keyboardWillHide' )
+    }
+
+    updateKeyboardSpace(frames) {
+        const keyboardSpace = frames.endCoordinates.height; // 获取键盘高度 
+        this.setState( { keyboardSpace: keyboardSpace } );
+    }
+
+    resetKeyboardSpace() {
+        this.setState( { keyboardSpace: 0 } );
+    }
+
+}
 
 var styles = StyleSheet.create({
     title_background: {
@@ -255,4 +306,5 @@ module.exports = {
     'BackTitleView': BackTitleView,
     'Playground': Playground,
     'FanItemView': FanItemView,
+    'QuickInput': QuickInput,
 };

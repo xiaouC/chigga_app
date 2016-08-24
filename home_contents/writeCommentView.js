@@ -28,7 +28,7 @@ class WriteCommentView extends React.Component {
 
     _send() {
         var _this_self = this;
-        user.write_comment( this.props.item_id, comment_text, function() {
+        user.write_comment( this.props.item_id, null, comment_text, function() {
             _this_self.props.navigator.pop();
         });
     };
@@ -54,7 +54,8 @@ class WriteCommentView extends React.Component {
                             </View>
                         </View>
                     </Image>
-                    <View style={{flex: 1}}/>
+                    <View style={{flex: 1, backgroundColor: 'transparent'}}/>
+                    <Text style={{width: 360, height: 30}}>HAHAHA</Text>
                 </View>
             );
     }
@@ -67,6 +68,7 @@ var styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
+        backgroundColor: 'transparent',
     },
 
     content_area: {

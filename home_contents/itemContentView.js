@@ -132,19 +132,21 @@ class RecommentView extends React.Component {
     render() {
         if( this.props.index < this.props.recomments.length ) {
             var recomment_info = this.props.recomments[this.props.index];
+            var at_name = '  回复@' + recomment_info.at_name;
+            var content = '    ' + recomment_info.comment_content;
             return (
                     <View>
                         <View style={styles.recomment_item}>
                             <Text style={styles.recomment_text_1}>
-                                {recomment_info.nick_name}
+                                {recomment_info.comment_name}
                                 <Text style={styles.recomment_text_2}>
-                                    {recomment_info.at_name}
+                                    {at_name}
                                     <Text style={styles.recomment_text_3}>
-                                        {recomment_info.recomment_content}
+                                        {content}
                                     </Text>
                                 </Text>
                             </Text>
-                            <Text style={styles.recomment_time}>{recomment_info.recomment_time}</Text>
+                            <Text style={styles.recomment_time}>{recomment_info.comment_time}</Text>
                         </View>
                         <RecommentView recomments={this.props.recomments} index={this.props.index+1}/>
                     </View>
@@ -178,7 +180,7 @@ class CommentView extends React.Component {
                             </View>
                         </View>
                         <View style={styles.recomment_area}>
-                            <RecommentView recomments={comment_info.recomments} index={0}/>
+                            <RecommentView recomments={comment_info.children} index={0}/>
                         </View>
                         <CommentView comments={this.props.comments} index={this.props.index+1} />
                     </View>
@@ -230,13 +232,37 @@ class HomeItemDetailView extends Component {
             },
 
             comments: [],               // 评论
+            comment_count: 0,
         };
+
+        this.map_comments = new Map(),
 
         this.banner_src = '';
         this.html_content = '';
 
         var _this_self = this;
         setTimeout( function() { _this_self._load(); }, 1500 );
+    };
+
+    _append_comment( comment_info ) {
+        this.map_comments.set( comment_info.id, comment_info );
+
+        comment_info.children = [];
+
+        if( comment_info.parent_id != null ) {
+            var parent_comment_info = this.map_comments.get( comment_info.parent_id );
+            if( parent_comment_info != null && parent_comment_info.root_id != null ) {
+                var root_comment_info = this.map_comments.get( parent_comment_info.root_id );
+                if( root_comment_info != null ) {
+                    comment_info.root_id = root_comment_info.id;
+                    comment_info.at_name = parent_comment_info.comment_name;
+                    root_comment_info.children.push( comment_info );
+                }
+            }
+        } else {
+            comment_info.root_id = comment_info.id;
+            this.state.comments.push( comment_info );
+        }
     };
 
     _load() {
@@ -288,28 +314,68 @@ class HomeItemDetailView extends Component {
         });
 
         // 评论的列表
-        net_util.get( common.get_comment_url + "?content=" + _this_self.props.item_id, false, function(rsp_json_data) {
-            //alert( rsp_json_data );
+        net_util.get( common.get_comment_url + "?content=" + _this_self.props.item_id, true, function(rsp_json_data) {
+            var all_comments = rsp_json_data.data.comments;
 
-            for( var i=0; i < 3; ++i ) {
+            _this_self.state.comment_count = all_comments.length;
+            for( var i=0; i< all_comments.length; ++i ) {
                 var comment_info = {
-                    head_icon: require('./images/user_head.png'),
-                    comment_name: 'Motion_M',
-                    comment_time: '6月30日 17:07',
-                    comment_content: '略屌哦，哪里可以下载到这首歌和MV？',
-                    recomments: [],
+                    id: all_comments[i]._id,                        // 评论的唯一 ID
+                    parent_id: all_comments[i].parent_id,
+                    user_id: all_comments[i].user._id,              // 发表这个评论的用户 ID
+                    comment_name: all_comments[i].user.nickname,    // 发表这个评论的用户的昵称
+                    head_icon: require('./images/user_head.png'),   // 发表这个评论的用户的头像
+                    item_id: all_comments[i].content,               // 这个评论对应的内容的 ID
+                    comment_content: all_comments[i].comment,       // 评论的内容
+                    comment_time: common.get_comment_time( all_comments[i].date ),  // 发表评论的时间
                 };
 
-                for( var j=0; j < 2; ++j ) {
-                    comment_info.recomments.push( {
-                        nick_name: 'DJ Jennies',
-                        at_name: '  回复@' + comment_info.comment_name,
-                        recomment_content: '    在QQ音乐下载',
-                        recomment_time: '6月30日 17:20',
-                    });
-                }
+                _this_self._append_comment( comment_info );
+            }
 
-                _this_self.state.comments.push( comment_info );
+            if( all_comments.length <= 0 ) {
+                for( var i=0; i < 3; ++i ) {
+                    var comment_id = 'a' + i;
+
+                    var comment_info = {
+                        id: comment_id,
+                        parent_id: null,
+                        user_id: 'user_id',
+                        comment_name: 'Motion_M',
+                        head_icon: require('./images/user_head.png'),
+                        item_id: 'item_id',
+                        comment_content: '略屌哦，哪里可以下载到这首歌和MV？',
+                        comment_time: '6月30日 17:07',
+                    };
+
+                    _this_self._append_comment( comment_info );
+
+                    var comment_info_1 = {
+                        id: comment_id + '1',
+                        parent_id: comment_id,
+                        user_id: 'user_id',
+                        comment_name: 'DJ Jennies',
+                        head_icon: require('./images/user_head.png'),
+                        item_id: 'item_id',
+                        comment_content: '在QQ音乐下载',
+                        comment_time: '6月30日 17:20',
+                    };
+
+                    _this_self._append_comment( comment_info_1 );
+
+                    var comment_info_2 = {
+                        id: comment_id + '2',
+                        parent_id: comment_id + '1',
+                        user_id: 'user_id',
+                        comment_name: 'DJ Jennies',
+                        head_icon: require('./images/user_head.png'),
+                        item_id: 'item_id',
+                        comment_content: '在QQ音乐下载',
+                        comment_time: '6月30日 17:20',
+                    };
+
+                    _this_self._append_comment( comment_info_2 );
+                }
             }
 
             _this_self.has_inited = true;
@@ -350,10 +416,9 @@ class HomeItemDetailView extends Component {
                 </View>
                    );
         } else {
-        var comment_title_text = '评论  (' + this.state.comments.length + ')';
+        var comment_title_text = '评论  (' + this.state.comment_count + ')';
         var attention_src = this.state.has_attention ? require('./images/attention_action_2.png') : require('./images/attention_action_1.png');
         var zan_title_text = this.state.zan_info.zan_count + '个人觉得这很奇格';
-        var comments = this.state.comments;
         var btn_zan_src = this.state.self_zan.is_zan ? require('./images/zan_2.png') : require('./images/zan_1.png');
         return (
                 <View style={{flex:1}}>
@@ -420,7 +485,7 @@ class HomeItemDetailView extends Component {
                         <View style={styles.comment_area}>
                             <Text style={styles.comment_title}>{comment_title_text}</Text>
                             <Image style={styles.comment_line} source={require('./images/line_comment.png')}/>
-                            <CommentView comments={comments} index={0} />
+                            <CommentView comments={this.state.comments} index={0} />
                         </View>
                     </ScrollView>
 
@@ -443,7 +508,7 @@ class HomeItemDetailView extends Component {
                         <View style={styles.write_comment_item}>
                             <TouchableOpacity onPress={ () => {
                                 if( user.check_login() ) {
-                                    this.props.navigator.push({name: 'WriteCommentView'});
+                                    this.props.navigator.push({name: 'WriteCommentView', passProps: {item_id: this.props.item_id}});
                                 }
                             }}>
                                 <Image style={styles.write_comment_icon} source={require('./images/write_comment.png')} />
